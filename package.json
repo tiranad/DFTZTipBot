@@ -35,8 +35,11 @@
     "cors": "^2.8.4",
     "debug": "^3.1.0",
     "decimal.js": "^10.0.0",
+    "dotenv": "^5.0.1",
     "mongodb": "^3.0.8",
     "mongoose": "^5.0.18",
-    "node-json-rpc": "0.0.1"
+    "node-json-rpc": "0.0.1",
+    "snoostream": "^1.0.1",
+    "snoowrap": "^1.15.2"
   }
 }
