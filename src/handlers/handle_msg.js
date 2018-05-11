@@ -1,3 +1,5 @@
+const handleErr = require('./error_handler.js');
+
 module.exports = async (post, client) => {
     if (!post.body.startsWith('!pivxtip')) return;
     const {parent_id, body} = post;
@@ -15,5 +17,6 @@ module.exports = async (post, client) => {
     }
     else {
         //error
+        handleErr("Unable to find comment from ID");
     }
 };

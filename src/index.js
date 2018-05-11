@@ -16,6 +16,8 @@ const snooStream = snoostream(client);
 
 const commentStream = snooStream.commentStream('PIVXTipTest', {regex: /([!pivxtip])\w+/g});
 
-commentStream.on('post', (post, match) => {
+commentStream.on('post', (post) => {
     msgHandler(post, client);
 });
+
+console.log(`PIVX Tip Bot starting up...`);
