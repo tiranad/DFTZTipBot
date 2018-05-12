@@ -1,7 +1,7 @@
 const handleErr = require('./error_handler.js');
 
 module.exports = async (post, client) => {
-    if (!post.body.startsWith('!pivxtip')) return;
+    if (!post.body.startsWith('!tip ')) return;
     const {parent_id, body} = post;
     const args = body.match(/\S+/g);
 
@@ -14,6 +14,7 @@ module.exports = async (post, client) => {
 
     if (c) {
         //do stuff with comment
+        await post.reply("Tipping " + await c.author.name + " " + amount + " PIVX from " + await post.author.name);
     }
     else {
         //error

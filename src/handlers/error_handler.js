@@ -1,3 +1,3 @@
 module.exports = (err) => {
-    console.log(`ERROR:\n${err.stacktrace}`);
+    console.log(`ERROR:\n${err}`);
 };

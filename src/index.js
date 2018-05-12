@@ -14,7 +14,7 @@ const client = new Snoowrap({
 
 const snooStream = snoostream(client);
 
-const commentStream = snooStream.commentStream('PIVXTipTest', {regex: /([!pivxtip])\w+/g});
+const commentStream = snooStream.commentStream('PIVXTipTest', {regex: /([!tip])\w+/g});
 
 commentStream.on('post', (post) => {
     msgHandler(post, client);
