@@ -1,3 +1,5 @@
+const handleTip = require('./handleTip.js');
+
 const handleErr = require('./error_handler.js');
 
 module.exports = async (post, client) => {
@@ -12,9 +14,17 @@ module.exports = async (post, client) => {
 
     const c = await client.getComment(parent_id);
 
+    const authorName = await c.author.name;
+
     if (c) {
         //do stuff with comment
-        await post.reply("Tipping " + await c.author.name + " " + amount + " PIVX from " + await post.author.name);
+        handleTip(post, c, amount).then(() => {
+            return post.reply(`Successfully tipped ${authorName} ${amount} PIVX!`);
+        }).catch(() => {
+            //insufficient funds
+            return post.reply(`Insufficient funds to tip ${authorName} ${amount} PIVX!`);
+        });
+
     }
     else {
         //error
