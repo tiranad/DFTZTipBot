@@ -3,7 +3,7 @@ const handleTip = require('./handleTip.js');
 const handleErr = require('./error_handler.js');
 
 module.exports = async (post, client) => {
-    if (!post.body.startsWith('!tip ')) return;
+    if (!post.body.startsWith('!pivxtip ')) return;
     const {parent_id, body} = post;
     const args = body.match(/\S+/g);
 
@@ -24,7 +24,6 @@ module.exports = async (post, client) => {
             //insufficient funds
             return post.reply(`Insufficient funds to tip ${authorName} ${amount} PIVX!`);
         });
-
     }
     else {
         //error

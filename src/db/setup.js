@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Agenda = require('agenda');
 
 module.exports = async (options = {}) => {
     let dbName = "data_pivx_" + global.env;
@@ -7,12 +8,12 @@ module.exports = async (options = {}) => {
         mongoose.set('debug', true);
     }
 
-    console.log(dbName);
-
     let mongoConnectionString = `mongodb://localhost:27017/${dbName}`;
     let db = await mongoose.connect(mongoConnectionString);
+    let agenda = new Agenda({ mongo: db.connection, db: { collection: "jobs" } });
 
     return {
-        db
+        db: db,
+        agenda: agenda
     };
 };
