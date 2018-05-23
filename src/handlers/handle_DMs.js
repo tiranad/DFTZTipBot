@@ -19,7 +19,17 @@ async function handlePoll(client) {
 }
 
 async function deposit(msg) {
-    return msg.reply('test');
+
+    const user = User.findOne({username: msg.username});
+
+    if (!user) {
+        const newTipper = new User({username: msg.username, balance: "0"});
+        await newTipper.save();
+    }
+
+    const addr = user.addr;
+
+    return msg.reply('Your deposit address is: ' + addr);
 }
 
 async function withdraw(msg, args) {
@@ -31,6 +41,11 @@ async function withdraw(msg, args) {
     else if (!addr || addr.length !== 34) return msg.reply(addr + " is not a valid PIVX address.");
 
     const user = User.findOne({username: msg.username});
+
+    if (!user) {
+        const newTipper = new User({username: msg.username, balance: "0"});
+        await newTipper.save();
+    }
 
     return User.validateWithdrawAmount(user, amount).then(async () => {
 
@@ -46,6 +61,17 @@ async function withdraw(msg, args) {
     }).catch(() => {
         //TODO handle
     });
+}
+
+async function balance(msg, user) {
+
+    if (!user) {
+        const newTipper = new User({username: msg.username, balance: "0"});
+        await newTipper.save();
+    }
+
+
+
 }
 
 async function handlePrivateMessage(msg) {
@@ -65,6 +91,7 @@ async function handlePrivateMessage(msg) {
         break;
     case '!balance':
         //balance
+        await balance(args[0]);
         break;
     case '!history':
         //tip history

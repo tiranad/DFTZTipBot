@@ -49,6 +49,10 @@ class PivxClient {
             return Promise.resolve(response.data);
         });
     }
+
+    async newAddress(wallet) {
+      
+    }
 }
 
 PivxClient.MRAI_RAW_VALUE = 1000000000000000000000000000000;

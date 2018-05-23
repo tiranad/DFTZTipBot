@@ -1,9 +1,9 @@
 global.srcRoot = require('path').resolve('./');
 const models = require('../db');
 
-const config = require('../config.json')[global.env];
+const config = require('../data/config.json')[global.env];
 
-const NanoClient = require('./nano_client.js');
+const PIVXClient = require('./pivx_client.js');
 const Decimal = require("decimal.js");
 const utils = require('./../utils');
 
@@ -11,7 +11,7 @@ class PaymentProcessor {
 
     constructor(options) {
         this.agenda         = options.agenda;
-        this.nanoClient     = options.nanoClient || new NanoClient("https://144.217.240.174/nano_api", config.nano_api_key);
+        this.pivxClient     = options.pivxClient || new PIVXClient("https://144.217.240.174/nano_api", config.nano_api_key);
         this.wallet         = options.wallet;
         this.masterAccount  = options.masterAccount;
     }
@@ -38,7 +38,7 @@ class PaymentProcessor {
 
     async checkPending(options = {}) {
         try {
-            const pending = await this.nanoClient.getPending(this.wallet);
+            const pending = await this.pivxClient.getPending(this.wallet);
 
             for (let recipientAddress in pending.blocks) {
                 for (let blockHash in pending.blocks[recipientAddress]) {
@@ -94,7 +94,7 @@ class PaymentProcessor {
         if (job.attrs.nanoStepCompleted) {
             sendBlock = job.attrs.sendBlock;
         } else {
-            sendBlock = await this.nanoClient.processSend(this.wallet, this.masterAccount, recipientAddress, amount);
+            sendBlock = await this.pivxClient.processSend(this.wallet, this.masterAccount, recipientAddress, amount);
             if (sendBlock.error) throw new Error(sendBlock.error);
             await models.Job.findOneAndUpdate({ _id: job.attrs._id} , { "data.nanoStepCompleted": true, "data.sendBlock": sendBlock.block });
         }
@@ -130,13 +130,13 @@ class PaymentProcessor {
         if (job.attrs.nanoStepCompleted) {
             receiveBlock = job.attrs.receiveBlock;
         } else {
-            receiveBlock = await this.nanoClient.processReceive(block, recipientAddress, this.wallet);
+            receiveBlock = await this.pivxClient.processReceive(block, recipientAddress, this.wallet);
             if (receiveBlock.error) throw new Error(receiveBlock.error);
             let result = await models.Job.findByIdAndUpdate(job.attrs._id, { "data.nanoStepCompleted": true, "data.receiveBlock": receiveBlock.block }, {new: true});
         }
 
         // Step 2: Update user balance + record transaction
-        let amountInMRai = Decimal(rawAmount).div(NanoClient.MRAI_RAW_VALUE);
+        let amountInMRai = Decimal(rawAmount).div(this.pivxClient.MRAI_RAW_VALUE);
 
         if (!job.attrs.userStepCompleted) {
             await models.User.deposit(user, amountInMRai, receiveBlock.block);
@@ -149,6 +149,10 @@ class PaymentProcessor {
         }
 
         return receiveBlock;
+    }
+
+    generateAddress(user) {
+      
     }
 
     reportException(e) {
