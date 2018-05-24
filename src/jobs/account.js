@@ -1,11 +1,11 @@
-const NanoClient = require('../lib/nano_client.js');
+const PIVXClient = require('../lib/nano_client.js');
 const config = require('../config.json')[global.env];
 const models = require('../db');
 const utils = require('./../utils');
 
 module.exports = function(agenda) {
 
-    let nanoClient = new NanoClient("https://144.217.240.174/nano_api", config.nano_api_key);
+    let nanoClient = new PIVXClient("https://144.217.240.174/nano_api", config.nano_api_key);
 
     agenda.define('account_create', async function(job, done) {
         let userId = job.attrs.data.userId;

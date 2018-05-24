@@ -1,6 +1,6 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-const axios = require('axios');
+const Bitcoin = require('bitcoin-core');
 const Decimal = require('decimal.js');
 
 
@@ -8,24 +8,21 @@ class PivxClient {
 
     constructor(baseURL, apiKey) {
         if (!apiKey) throw new Error("Missing APIKey");
-        this.rpc = axios.create({
-            baseURL: baseURL,
-            headers: {
-                Authorization: `Basic ${apiKey}`
-            }
+        this.rpc = new Bitcoin({
+            port: 51473,
+            username: "test",
+            password: "test"
         });
     }
 
-    async getPending(wallet) {
+  /*  async getPending(wallet) {
         return this.rpc.post('/', {"action": "wallet_pending", "wallet": wallet, "count": "10", "source": "true"}).then((response) => {
             return Promise.resolve(response.data);
         });
-    }
+    }*/
 
     async accountCreate(wallet) {
-        return this.rpc.post('/', {"action": "account_create", "wallet": wallet }).then((response) => {
-            return Promise.resolve(response.data);
-        });
+        return this.rpc.getNewAddress();
     }
 
     async getAccountInfo(account) {
@@ -51,7 +48,7 @@ class PivxClient {
     }
 
     async newAddress(wallet) {
-      
+
     }
 }
 
