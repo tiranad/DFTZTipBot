@@ -23,8 +23,18 @@ async function deposit(msg) {
     const user = User.findOne({username: msg.username});
 
     if (!user) {
-        const newTipper = new User({username: msg.username, balance: "0"});
-        await newTipper.save();
+
+        const newUser = new User({username: await msg.username});
+        await newUser.save();
+
+        const job = global.agenda.create("account_create", {userId: newUser._id});
+
+        job.save((err, doc) => {
+            if (err) return false;
+
+            user.addr = doc.addr;
+        });
+
     }
 
     const addr = user.addr;
@@ -40,10 +50,10 @@ async function withdraw(msg, args) {
     if (isNaN(amount)) return msg.reply(args[1] + " is not a valid amount.");
     else if (!addr || addr.length !== 34) return msg.reply(addr + " is not a valid PIVX address.");
 
-    const user = User.findOne({username: msg.username});
+    const user = User.findOne({username: await msg.username});
 
     if (!user) {
-        const newTipper = new User({username: msg.username, balance: "0"});
+        const newTipper = new User({username: await msg.username, balance: "0"});
         await newTipper.save();
     }
 

@@ -15,12 +15,6 @@ class PivxClient {
         });
     }
 
-    /*  async getPending(wallet) {
-        return this.rpc.post('/', {"action": "wallet_pending", "wallet": wallet, "count": "10", "source": "true"}).then((response) => {
-            return Promise.resolve(response.data);
-        });
-    }*/
-
     async accountCreate() {
         return this.rpc.getNewAddress();
     }
@@ -39,13 +33,13 @@ class PivxClient {
         });
     }
 
-    async processSend(wallet, from, to, nanoAmount) {
+  /*  async processSend(wallet, from, to, nanoAmount) {
         const rawAmount = Decimal(this.constructor.MRAI_RAW_VALUE).mul(nanoAmount).toFixed();
 
         return this.rpc.post('/', {"action": "send", "wallet": wallet, "source": from, "destination": to, "amount": rawAmount}).then((response) => {
             return Promise.resolve(response.data);
         });
-    }
+    }*/
 
 }
 

@@ -5,7 +5,7 @@ const utils = require('./../utils');
 
 module.exports = function(agenda) {
 
-    let pivxClient = new PIVXClient("https://144.217.240.174/nano_api", config.nano_api_key);
+    let pivxClient = new PIVXClient();
 
     agenda.define('account_create', async function(job, done) {
         let userId = job.attrs.data.userId;
