@@ -12,7 +12,7 @@ let s = {
             type: mongoose.Schema.Types.Decimal128,
             default: "0.0"
         },
-        block: {
+        txid: {
             type: String,
             unique: true
         }
@@ -28,7 +28,7 @@ s.schema.methods.toJSON = function() {
     return {
         deposit: attrs.deposit.toString(),
         withdraw: attrs.withdraw.toString(),
-        block: attrs.block,
+        block: attrs.txid,
         createdAt: attrs.createdAt
     };
 };

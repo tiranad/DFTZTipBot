@@ -36,6 +36,16 @@ class PaymentProcessor {
         }
     }
 
+    async getAddress(options) {
+        try {
+            await this.generateAddress(options.user);
+            return { success: true };
+        } catch (e) {
+            this.reportException(e);
+            return { error: e };
+        }
+    }
+
     async checkPending(options = {}) {
         try {
             const pending = await this.pivxClient.getPending(this.wallet);
@@ -57,11 +67,11 @@ class PaymentProcessor {
         }
     }
 
-    async createDepositOrder(blockHash, recipientAddress, rawAmount) {
-        let job = await models.Job.findOne({ "data.block": blockHash  });
+    async createDepositOrder(txID, recipientAddress, rawAmount) {
+        let job = await models.Job.findOne({ "data.txid": txID  });
 
         if (!job) {
-            job = this.agenda.create('deposit_order', { recipientAddress: recipientAddress, block: blockHash, rawAmount: rawAmount });
+            job = this.agenda.create('deposit_order', { recipientAddress: recipientAddress, block: txID, rawAmount: rawAmount });
             return new Promise((res, rej) => {
                 job.save((err) => {
                     if (err) return rej(err);
@@ -132,7 +142,7 @@ class PaymentProcessor {
         } else {
             receiveBlock = await this.pivxClient.processReceive(block, recipientAddress, this.wallet);
             if (receiveBlock.error) throw new Error(receiveBlock.error);
-            let result = await models.Job.findByIdAndUpdate(job.attrs._id, { "data.nanoStepCompleted": true, "data.receiveBlock": receiveBlock.block }, {new: true});
+            await models.Job.findByIdAndUpdate(job.attrs._id, { "data.nanoStepCompleted": true, "data.receiveBlock": receiveBlock.block }, {new: true});
         }
 
         // Step 2: Update user balance + record transaction
@@ -151,8 +161,20 @@ class PaymentProcessor {
         return receiveBlock;
     }
 
-    generateAddress(user) {
-      
+    async generateAddress(user) {
+        let job = await models.Job.findOne({ "data.user": user._id  });
+
+        if (!job) {
+            job = this.agenda.create('account_create', { address: await PIVXClient.accountCreate() });
+            return new Promise((res, rej) => {
+                job.save((err) => {
+                    if (err) return rej(err);
+                    return res(job);
+                });
+            });
+        }
+
+        return job;
     }
 
     reportException(e) {

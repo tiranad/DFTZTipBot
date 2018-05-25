@@ -9,19 +9,19 @@ class PivxClient {
     constructor(baseURL, apiKey) {
         if (!apiKey) throw new Error("Missing APIKey");
         this.rpc = new Bitcoin({
-            port: 51473,
+            port: 33333,
             username: "test",
             password: "test"
         });
     }
 
-  /*  async getPending(wallet) {
+    /*  async getPending(wallet) {
         return this.rpc.post('/', {"action": "wallet_pending", "wallet": wallet, "count": "10", "source": "true"}).then((response) => {
             return Promise.resolve(response.data);
         });
     }*/
 
-    async accountCreate(wallet) {
+    async accountCreate() {
         return this.rpc.getNewAddress();
     }
 
@@ -47,9 +47,6 @@ class PivxClient {
         });
     }
 
-    async newAddress(wallet) {
-
-    }
 }
 
 PivxClient.MRAI_RAW_VALUE = 1000000000000000000000000000000;
