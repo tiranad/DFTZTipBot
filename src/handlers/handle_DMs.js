@@ -87,14 +87,13 @@ async function withdraw(msg, args) {
     });
 }
 
-async function balance(msg, user) {
+async function balance(msg) {
 
-    if (!user) {
-        const newTipper = new User({username: msg.username, balance: "0"});
-        await newTipper.save();
-    }
+    let user = await User.findOne({username: await msg.author.name});
 
+    if (!user) user = createNewUser();
 
+    return msg.reply('Your balance is ' + user.balance + " PIVX");
 
 }
 
@@ -116,7 +115,7 @@ async function handlePrivateMessage(msg) {
         break;
     case '!balance':
         //balance
-        await balance(args[0]);
+        await balance(msg);
         break;
     case '!history':
         //tip history
