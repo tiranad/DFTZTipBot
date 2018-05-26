@@ -1,4 +1,4 @@
-const {User} = require('../db');
+const {User, Tip} = require('../db');
 
 module.exports = async (original, comment, amount) => {
     return new Promise(async (res, rej) => {
@@ -22,10 +22,18 @@ module.exports = async (original, comment, amount) => {
             receiver = newReceiver;
         }
 
-        await User.tip(tipper, receiver, amount).catch((err) => {
-            if(err.message == "insufficient funds") rej(1);
-        });
+        await User.tip(tipper, receiver, amount).then(() => {
 
-        res(true);
+            const tip = new Tip({tipper: tipper._id, tipped: receiver._id, amount});
+            tip.save((err) => {
+                if (err) rej(err);
+            });
+
+            res(true);
+        }).catch((err) => {
+            if(err.message == "insufficient funds") rej(1);
+
+
+        });
     });
 };

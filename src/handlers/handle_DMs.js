@@ -1,5 +1,5 @@
 const PrivateMessage = require('snoowrap').objects.PrivateMessage;
-const {User, Job} = require('../db');
+const {User, Job, Tip} = require('../db');
 const PivxClient = require('../lib/pivx_client');
 const PIVXClient = new PivxClient();
 
@@ -23,10 +23,10 @@ async function handlePoll(client) {
 }
 
 async function createNewUser(username) {
-    return new Promise(async (res, rej) => {
+    return new Promise(async (res) => {
         const addr = await getNewAddress();
         const newUser = new User({username: username, addr});
-        await newUser.save();
+        res(await newUser.save());
     });
 }
 
@@ -97,6 +97,40 @@ async function balance(msg) {
 
 }
 
+async function findHistory(username) {
+    let user = await User.findOne({username: username});
+
+    if (!user) user = createNewUser();
+
+    const tips = await Tip.find({tipper: user._id});
+
+    const recv = await Tip.find({tipped: user._id});
+
+    return { tips, recv };
+}
+
+async function history(msg) {
+    const { tips, recv } = await findHistory(await msg.author.name);
+
+    let tip_msg = "Received tips:\n";
+
+    for (let tip of recv) {
+        const tipper = await User.findOne({_id:tip.tipper});
+        tip_msg += `\n    From: ${tipper.username} | Amount: ${tip.amount} PIVX\n`;
+    }
+
+    let recv_msg = "Sent tips:\n";
+
+    for (let tip of tips) {
+        const tipped = await User.findOne({_id:tip.tipped});
+        recv_msg += `\n   To: ${tipped.username} | Amount: ${tip.amount} PIVX\n`;
+    }
+
+    const text = tip_msg + "\n" + recv_msg;
+
+    return msg.reply(text);
+}
+
 async function handlePrivateMessage(msg) {
 
     const args = msg.body.match(/\S+/g);
@@ -119,6 +153,7 @@ async function handlePrivateMessage(msg) {
         break;
     case '!history':
         //tip history
+        await history(msg);
         break;
     default:
         //handleInvalid
