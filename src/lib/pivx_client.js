@@ -1,13 +1,12 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const Bitcoin = require('bitcoin-core');
-const Decimal = require('decimal.js');
 
 
 class PivxClient {
 
-    constructor(baseURL, apiKey) {
-        if (!apiKey) throw new Error("Missing APIKey");
+    constructor() {
+        //if (!apiKey) throw new Error("Missing APIKey");
         this.rpc = new Bitcoin({
             port: 33333,
             username: "test",
@@ -32,14 +31,6 @@ class PivxClient {
             return Promise.resolve(result);
         });
     }
-
-  /*  async processSend(wallet, from, to, nanoAmount) {
-        const rawAmount = Decimal(this.constructor.MRAI_RAW_VALUE).mul(nanoAmount).toFixed();
-
-        return this.rpc.post('/', {"action": "send", "wallet": wallet, "source": from, "destination": to, "amount": rawAmount}).then((response) => {
-            return Promise.resolve(response.data);
-        });
-    }*/
 
 }
 

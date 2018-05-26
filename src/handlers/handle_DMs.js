@@ -1,5 +1,7 @@
 const PrivateMessage = require('snoowrap').objects.PrivateMessage;
 const {User, Job} = require('../db');
+const PivxClient = require('../lib/pivx_client');
+const PIVXClient = new PivxClient();
 
 async function filterMessages(arr) {
     const newArr = [];
@@ -11,35 +13,47 @@ async function filterMessages(arr) {
 
 async function handlePoll(client) {
     const _msgs = await client.getUnreadMessages();
-    const msgs = await filterMessages(_msgs);
+
+    const msgs = await filterMessages(_msgs, client);
+
 
     for (let msg of msgs) {
         await handlePrivateMessage(msg);
     }
 }
 
-async function deposit(msg) {
-
-    const user = User.findOne({username: msg.username});
-
-    if (!user) {
-
-        const newUser = new User({username: await msg.username});
+async function createNewUser(username) {
+    return new Promise(async (res, rej) => {
+        const addr = await getNewAddress();
+        const newUser = new User({username: username, addr});
         await newUser.save();
+    });
+}
 
-        const job = global.agenda.create("account_create", {userId: newUser._id});
+async function getNewAddress() {
+    return PIVXClient.accountCreate().catch((err) => {
+        if (err) return err;
+    });
+}
 
-        job.save((err, doc) => {
-            if (err) return false;
-
-            user.addr = doc.addr;
+async function updateUser(user) {
+    return new Promise(async (res, rej) => {
+        const addr = await getNewAddress();
+        user.addr = addr;
+        user.save((err) => {
+            if (err) rej(err);
+            res(user);
         });
+    });
+}
 
-    }
+async function deposit(msg) {
+    let user = await User.findOne({username: await msg.author.name});
 
-    const addr = user.addr;
+    if (!user) user = createNewUser(await msg.author.user);
+    else user = await updateUser(user);
 
-    return msg.reply('Your deposit address is: ' + addr);
+    return msg.reply('Your deposit address is: ' + user.addr);
 }
 
 async function withdraw(msg, args) {
@@ -88,6 +102,7 @@ async function handlePrivateMessage(msg) {
 
     const args = msg.body.match(/\S+/g);
 
+    console.log('Handling message..');
 
 
     switch (args[0]) {
@@ -108,6 +123,7 @@ async function handlePrivateMessage(msg) {
         break;
     default:
         //handleInvalid
+        console.log(args[0]);
     }
 
     await msg.markAsRead();
@@ -115,6 +131,7 @@ async function handlePrivateMessage(msg) {
 }
 
 module.exports = async (client) => {
+
 
     setInterval(await handlePoll, 5000, client);
 

@@ -14,6 +14,10 @@ let s = {
             type: mongoose.Schema.Types.Decimal128,
             default: "0.0"
         },
+        addr: {
+            type: String,
+            unique: true
+        }
     },{
         timestamps: true
     })
