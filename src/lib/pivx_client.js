@@ -18,23 +18,13 @@ class PivxClient {
         return this.rpc.getNewAddress();
     }
 
-    async getAccountInfo(account) {
-        return this.rpc.post('/', {"action": "account_info", "account": account}).then((response) => {
-            let result = response.data;
-            return Promise.resolve(result);
-        });
-    }
-
-    async processReceive(pendingBlockhash, account, wallet) {
-        return this.rpc.post('/', {"action": "receive", "wallet": wallet, "account": account, "block": pendingBlockhash }).then((response) => {
-            let result = response.data;
-            return Promise.resolve(result);
-        });
+    async send(addr, amount) {
+        return this.rpc.sendToAddress(addr, amount);
     }
 
 }
 
-PivxClient.MRAI_RAW_VALUE = 1000000000000000000000000000000;
+PivxClient.SATOSHI_VALUE = 100000000;
 
 
 module.exports = PivxClient;
