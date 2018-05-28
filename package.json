@@ -34,11 +34,13 @@
     "agendash": "^0.4.0",
     "axios": "^0.18.0",
     "bitcoin-core": "^2.0.0",
+    "bitcore-lib": "^8.0.0",
     "decimal.js": "^10.0.0",
     "dotenv": "^5.0.1",
     "mongodb": "^3.0.8",
     "mongoose": "^5.0.18",
     "snoostream": "^1.0.1",
-    "snoowrap": "^1.15.2"
+    "snoowrap": "^1.15.2",
+    "uuid": "^3.2.1"
   }
 }

@@ -1,6 +1,7 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const Bitcoin = require('bitcoin-core');
+const bitcore = require('bitcore-lib');
 
 
 class PivxClient {
@@ -21,6 +22,8 @@ class PivxClient {
     async send(addr, amount) {
         return this.rpc.sendToAddress(addr, amount);
     }
+
+    //async getUTXO()
 
 }
 
