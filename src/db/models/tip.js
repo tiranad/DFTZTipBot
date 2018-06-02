@@ -20,7 +20,7 @@ s.schema.methods.toJSON = function() {
     return {
         deposit: attrs.deposit.toString(),
         withdraw: attrs.withdraw.toString(),
-        block: attrs.txid,
+        txid: attrs.txid,
         createdAt: attrs.createdAt
     };
 };

@@ -1,5 +1,5 @@
 global.srcRoot = require('path').resolve('./');
-const models = require('../db');
+const {Transaction, User, Job} = require('../db');
 
 //const config = require('../data/config.json')[global.env];
 
@@ -29,7 +29,8 @@ class PaymentProcessor {
             await this.deposit(options);
             return { success: true };
         } catch(e) {
-            this.reportException(e);
+            //this.reportException(e);
+            console.error(e);
             return { error: e };
         }
     }
@@ -44,11 +45,33 @@ class PaymentProcessor {
         }
     }
 
+    async checkDeposit() {
+        setInterval(async () => {
+            const txs = await this.pivxClient.listTransactions();
+            let newTXs = [];
+
+            for (let tx of txs) {
+                //console.log(tx);
+                const acc = tx.account;
+                if (acc == "test" && tx.txid) {
+                    const re = await Transaction.find({ txid: tx.txid }).limit(1);
+                    if (re.length == 0) newTXs.push(tx);
+                }
+            }
+
+            for (let n of newTXs) {
+
+                await this.createDepositOrder(n.txid, n.address, n.amount);
+            }
+        }, 2000);
+    }
+
     async createDepositOrder(txID, recipientAddress, rawAmount) {
-        let job = await models.Job.findOne({ "data.txid": txID  });
+        let job = await Job.findOne({ "data.txid": txID  });
 
         if (!job) {
-            job = this.agenda.create('deposit_order', { recipientAddress: recipientAddress, block: txID, rawAmount: rawAmount });
+            console.log('New transaction! TXID: ' + txID);
+            job = this.agenda.create('deposit_order', { recipientAddress: recipientAddress, txid: txID, rawAmount: rawAmount });
             return new Promise((res, rej) => {
                 job.save((err) => {
                     if (err) return rej(err);
@@ -71,9 +94,9 @@ class PaymentProcessor {
         const amount            = job.attrs.data.amount;
 
         // Validate if user is present
-        let user = await models.User.findById(userId);
+        let user = await User.findById(userId);
         if (!user) throw new Error(`User ${userId} not found`);
-        await models.User.validateWithdrawAmount(user, amount);
+        await User.validateWithdrawAmount(user, amount);
 
         // Step 1: Process transaction
         let sendID;
@@ -82,20 +105,21 @@ class PaymentProcessor {
             sendID = job.attrs.txid;
         } else {
             const sent = await this.pivxClient.send(recipientAddress, amount);
+            console.log(sent);
             if (sent.error) throw new Error(sent.error);
-            await models.Job.findOneAndUpdate({ _id: job.attrs._id} , { "data.sendStepCompleted": true, "data.txid": sent.txid });
+            await Job.findOneAndUpdate({ _id: job.attrs._id} , { "data.sendStepCompleted": true, "data.txid": sent.txid });
         }
 
         // Step 2: Update user balance
         if (!job.attrs.userStepCompleted) {
-            await models.User.withdraw(user, amount);
-            await models.Job.findByIdAndUpdate(job.attrs._id, { "data.userStepCompleted": true });
+            await User.withdraw(user, amount);
+            await Job.findByIdAndUpdate(job.attrs._id, { "data.userStepCompleted": true });
         }
 
         // Step 3: Record Transaction
         if (!job.attrs.transactionStepCompleted) {
-            await models.Transaction.create({ userId: userId, withdraw: amount, txid: sendID });
-            await models.Job.findByIdAndUpdate(job.attrs._id, { "data.transactionStepCompleted": true });
+            await Transaction.create({ userId: userId, withdraw: amount, txid: sendID });
+            await Job.findByIdAndUpdate(job.attrs._id, { "data.transactionStepCompleted": true });
         }
 
         return sendID;
@@ -108,20 +132,21 @@ class PaymentProcessor {
         const rawAmount        = job.attrs.data.rawAmount;
 
         // Validate if user is present
-        let user = await models.User.findOne({ address: recipientAddress });
+        let user = await User.findOne({ addr: recipientAddress });
+
         if (!user) throw new Error(`User with address ${recipientAddress} not found`);
 
         // Step 2: Update user balance + record transaction
-        let amountInSats = Decimal(rawAmount).div(this.pivxClient.SATOSHI_VALUE);
+        let amountInSats = Decimal(rawAmount).div(this.pivxClient.SATOSHI_VALUE || 100000000);
 
         if (!job.attrs.userStepCompleted) {
-            await models.User.deposit(user, amountInSats, txid);
-            await models.Job.findByIdAndUpdate(job.attrs._id, { "data.userStepCompleted": true });
+            await User.deposit(user, amountInSats, txid);
+            await Job.findByIdAndUpdate(job.attrs._id, { "data.userStepCompleted": true });
         }
 
         if (!job.attrs.transactionStepCompleted) {
-            await models.Transaction.create({ userId: user.id, deposit: amountInSats.toFixed(), txid });
-            await models.Job.findByIdAndUpdate(job.attrs._id, { "data.transactionStepCompleted": true });
+            await Transaction.create({ userId: user.id, deposit: amountInSats.toFixed(), txid: txid });
+            await Job.findByIdAndUpdate(job.attrs._id, { "data.transactionStepCompleted": true });
         }
 
         return txid;

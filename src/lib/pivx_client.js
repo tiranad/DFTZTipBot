@@ -2,7 +2,6 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const Bitcoin = require('bitcoin-core');
 const bitcore = require('bitcore-lib');
-const checkDeposit = require('./checkdeposit');
 
 
 class PivxClient {
@@ -15,7 +14,6 @@ class PivxClient {
             password: "test"
         });
 
-        this.deposit = new checkDeposit(5000, this.rpc);
     }
 
     async accountCreate() {
@@ -26,7 +24,9 @@ class PivxClient {
         return this.rpc.sendToAddress(addr, amount);
     }
 
-    //async getUTXO()
+    async listTransactions() {
+        return this.rpc.listUnspent();
+    }
 
 }
 

@@ -1,4 +1,5 @@
 const path = require('path');
+const { fork } = require('child_process');
 
 global.srcRoot = path.resolve(__dirname);
 global.env = process.env.NODE_ENV ? process.env.NODE_ENV : "development";
@@ -34,6 +35,8 @@ setupDatabase().then((result) => {
     global.agenda = result.agenda;
 
     console.log(`PIVX Tip Bot starting up...`);
+
+    fork('./worker');
 });
 
 runPoll(client);

@@ -62,13 +62,13 @@ async function withdraw(msg, args) {
     const addr = args[2];
 
     if (isNaN(amount)) return msg.reply(args[1] + " is not a valid amount.");
-    else if (!addr || addr.length !== 35 /*TODO CHANGE TO 34 FOR PIVX*/) return msg.reply(addr + " is not a valid PIVX address.");
+    else if (!addr || addr.length !== 34 /*TODO CHANGE TO 34 FOR PIVX*/) return msg.reply(addr + " is not a valid PIVX address.");
 
     const user = await User.findOne({username: await msg.author.name});
 
     if (!user) {
-        console.log('terst');
         await User.create({username: await msg.author.name});
+        return 1;
     }
 
     return User.validateWithdrawAmount(user, amount).then(async () => {
@@ -76,7 +76,7 @@ async function withdraw(msg, args) {
         let pendingUserWithdrawJob = await Job.count({ name: "withdraw_order", "data.userId": user._id, completed: { $ne: true } });
         if (pendingUserWithdrawJob > 0) return 1;
 
-        const job = global.agenda.create('withdraw_order', {userId: user._id, recipientAddress: addr, amount, txid: null });
+        const job = global.agenda.create('withdraw_order', {userId: user._id, recipientAddress: addr, amount });
         job.save((err) => {
             if (err) return false;
 
@@ -132,50 +132,65 @@ async function history(msg) {
 }
 
 async function getTransactions (msg) {
-    return new Promise(async (res, rej) => {
+    return new Promise(async (res) => {
         const user = await User.findOne({username: await msg.author.name }) || await createNewUser();
 
         const options = {
-            name: { $in: ["withdraw_order", "deposit_order"] },
-            completed: { $ne: true },
             "data.userId": user._id
         };
 
-        Job.find(options).limit(10).sort({ lastFinishedAt: 'desc' }).then((result) => {
-            const data = result.map(row => row.toJSON());
-            res(data);
-        });
+        const withdraws_raw = await Job.find(options).limit(100).sort({ lastFinishedAt: 'desc' });
+        const deposits_raw = await Job.find({ "data.recipientAddress": user.addr}).limit(100).sort({ lastFinishedAt: 'desc' });
+        const data_w = withdraws_raw.map(row => row.toJSON());
+        const data_d = deposits_raw.map(row => row.toJSON());
 
-        const pending = await Job.find({ userId: user._id }).limit(10).sort({ lastFinishedAt: 'desc' }).map(row => row.toJSON());
+        const deposits = { pending: [], txs: [] }; const withdraws = { pending: [], txs: [] };
 
-        const txs = await Transaction.find({ userId: user._id }).limit(10).sort({ createdAt: 'desc' }).map(row => row.toJSON());
+        for (let tx of data_d) {
+            if (tx.completed == 'true') {
+                deposits.txs.push(tx.data);
+            } else {
+                deposits.pending.push(tx.data);
+            }
+        }
 
-        res({ pending, txs });
+        for (let tx of data_w) {
+            if (tx.completed == 'true') {
+                withdraws.txs.push(tx.data);
+            } else {
+                withdraws.pending.push(tx.data);
+            }
+        }
+
+        res({ deposits, withdraws });
+
     });
 }
 
 async function transactions(msg) {
 
-    const { pending, txs } = await getTransactions(msg);
+    const { deposits, withdraws } = await getTransactions(msg);
+    console.log(deposits);
+    let pend_msg = "**Pending transactions:**\n";
 
-    let pend_msg = "Pending transactions:\n";
+    let tx_msg = "\n**Completed transactions**:\n";
 
-    for (let pend of pending) {
-        if (pend.withdraw != "0.0") {
-            pend_msg += `\nWithdraw Amount: ${pend.amount} PIVX | Pending`;
-        } else {
-            pend_msg += `\nDeposit Amount: ${pend.amount} PIVX  | Pending`;
-        }
+    for (let pend of deposits.pending) {
+        pend_msg += `\nDeposit Amount: ${pend.rawAmount} PIVX  | Pending\n`;
     }
 
-    let tx_msg = "Sent tips:\n";
+    for (let txd of deposits.txs) {
 
-    for (let tx of txs) {
-        if (tx.withdraw != "0.0") {
-            tx_msg += `\nWithdraw Amount: ${tx.amount} PIVX | Pending`;
-        } else {
-            tx_msg += `\nDeposit Amount: ${tx.amount} PIVX  | Pending`;
-        }
+        tx_msg += `\nDeposit Amount: ${txd.rawAmount} PIVX | TXID: ${txd.txid}\n`;
+    }
+
+    for (let pend of withdraws.pending) {
+        pend_msg += `\nWithdraw Amount: ${pend.amount} PIVX  | Pending\n`;
+    }
+
+    for (let txd of withdraws.txs) {
+
+        tx_msg += `\nWithdraw Amount: ${txd.amount} PIVX | TXID: ${txd.txid}\n`;
     }
 
     const text = pend_msg + "\n" + tx_msg;
