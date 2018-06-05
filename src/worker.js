@@ -1,5 +1,19 @@
 const setupDatabase = require('./db/setup');
+const PIVXevents = require('./events');
 
+const config = JSON.parse(process.argv[2]);
+
+const Snoowrap = require('snoowrap');
+
+const client = new Snoowrap({
+    userAgent   : config.userAgent,
+    clientId    : config.clientId,
+    clientSecret: config.clientSecret,
+    username    : config.username,
+    password    : config.password
+});
+
+global.PIVXEvents = PIVXevents;
 global.env = process.env.NODE_ENV ? process.env.NODE_ENV : "development";
 
 console.log("=== Starting WORKER ===");
@@ -38,6 +52,8 @@ const run = () => {
         console.error(err);
         process.exit(-1);
     });
+
+    require('./handlers/check_jobs')(client);
 };
 
 const startDelay = 2000; // ensure that server.js is up/running

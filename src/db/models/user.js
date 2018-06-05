@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const uuid_util = require('uuid');
 const Decimal = require("decimal.js");
 
 
@@ -39,21 +38,6 @@ s.schema.statics.authCertainUser = async function (token, username) {
     });
 };
 
-s.schema.statics.updateToken = function (data) {
-    let key = uuid_util.v4();
-    return this.findOneAndUpdate({username: data.username},{token: key}, { new: true });
-};
-
-s.schema.statics.resetToken = async function (token) {
-    return new Promise(res => {
-        let key = uuid_util.v4();
-        this.findOneAndUpdate({token: token},{token: key}, { new: true }).then(doc => {
-            if (doc) res(key);
-            else res(null);
-        });
-    });
-};
-
 s.schema.statics.tip = async function (tipper, receiver, amount) {
     return this.validateWithdrawAmount(tipper, amount).then(() => {
         return this.findOneAndUpdate({ username: tipper.username }, { $inc : {'balance' : Decimal(0).minus(Decimal(amount)).toFixed() } }).then(() => {
@@ -84,8 +68,8 @@ s.schema.statics.validateWithdrawAmount = async function (user, amount) {
     amount = parseFloat(amount);
 
     if (isNaN(amount)) return Promise.reject({ message: "amount is not a number" });
-    if (amount <= 0) return Promise.reject({ message: "zero or negative amount not allowed" });
-    if (amount > user.balance) return Promise.reject({ message: "insufficient funds" });
+    else if (amount <= 0.00000100) return Promise.reject({ message: "Withdrawing requires at least 100 sats" });
+    else if (amount > user.balance) return Promise.reject({ message: "insufficient funds" });
 
     return Promise.resolve({});
 };

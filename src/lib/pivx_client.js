@@ -1,8 +1,6 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const Bitcoin = require('bitcoin-core');
-const bitcore = require('bitcore-lib');
-
 
 class PivxClient {
 
@@ -14,10 +12,12 @@ class PivxClient {
             password: "test"
         });
 
+        this.SATOSHI_VALUE = 1e-8;
+
     }
 
     async accountCreate() {
-        return this.rpc.getNewAddress();
+        return this.rpc.getNewAddress('test');
     }
 
     async send(addr, amount) {
@@ -29,8 +29,6 @@ class PivxClient {
     }
 
 }
-
-PivxClient.SATOSHI_VALUE = 100000000;
 
 
 module.exports = PivxClient;

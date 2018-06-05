@@ -1,5 +1,5 @@
 const PrivateMessage = require('snoowrap').objects.PrivateMessage;
-const {User, Job, Tip, Transaction} = require('../db');
+const {User, Job, Tip} = require('../db');
 const PivxClient = require('../lib/pivx_client');
 const PIVXClient = new PivxClient();
 
@@ -62,7 +62,7 @@ async function withdraw(msg, args) {
     const addr = args[2];
 
     if (isNaN(amount)) return msg.reply(args[1] + " is not a valid amount.");
-    else if (!addr || addr.length !== 34 /*TODO CHANGE TO 34 FOR PIVX*/) return msg.reply(addr + " is not a valid PIVX address.");
+    else if (!addr || addr.length !== 34 ) return msg.reply(addr + " is not a valid PIVX address.");
 
     const user = await User.findOne({username: await msg.author.name});
 
@@ -170,7 +170,7 @@ async function getTransactions (msg) {
 async function transactions(msg) {
 
     const { deposits, withdraws } = await getTransactions(msg);
-    console.log(deposits);
+
     let pend_msg = "**Pending transactions:**\n";
 
     let tx_msg = "\n**Completed transactions**:\n";

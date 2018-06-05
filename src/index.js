@@ -36,7 +36,13 @@ setupDatabase().then((result) => {
 
     console.log(`PIVX Tip Bot starting up...`);
 
-    fork('./worker');
+    fork('./worker', [JSON.stringify({
+        userAgent   : config.auth.USER_AGENT,
+        clientId    : config.auth.CLIENT_ID,
+        clientSecret: config.auth.CLIENT_SECRET,
+        username    : config.auth.USERNAME,
+        password    : config.auth.PASSWORD
+    })]);
 });
 
 runPoll(client);

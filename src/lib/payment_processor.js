@@ -1,8 +1,6 @@
 global.srcRoot = require('path').resolve('./');
 const {Transaction, User, Job} = require('../db');
 
-//const config = require('../data/config.json')[global.env];
-
 
 const PIVXClient = require('./pivx_client.js');
 const Decimal = require("decimal.js");
@@ -12,6 +10,10 @@ class PaymentProcessor {
     constructor(options) {
         this.agenda         = options.agenda;
         this.pivxClient     = options.pivxClient || new PIVXClient();
+    }
+
+    reportException(e) {
+        console.error(e);
     }
 
     async performWithdraw(options) {
@@ -51,7 +53,7 @@ class PaymentProcessor {
             let newTXs = [];
 
             for (let tx of txs) {
-                //console.log(tx);
+
                 const acc = tx.account;
                 if (acc == "test" && tx.txid) {
                     const re = await Transaction.find({ txid: tx.txid }).limit(1);
@@ -105,7 +107,6 @@ class PaymentProcessor {
             sendID = job.attrs.txid;
         } else {
             const sent = await this.pivxClient.send(recipientAddress, amount);
-            console.log(sent);
             if (sent.error) throw new Error(sent.error);
             await Job.findOneAndUpdate({ _id: job.attrs._id} , { "data.sendStepCompleted": true, "data.txid": sent.txid });
         }
@@ -120,6 +121,7 @@ class PaymentProcessor {
         if (!job.attrs.transactionStepCompleted) {
             await Transaction.create({ userId: userId, withdraw: amount, txid: sendID });
             await Job.findByIdAndUpdate(job.attrs._id, { "data.transactionStepCompleted": true });
+            global.PIVXEvents.emit('withdraw_success', {amount, recipientAddress});
         }
 
         return sendID;
@@ -137,7 +139,7 @@ class PaymentProcessor {
         if (!user) throw new Error(`User with address ${recipientAddress} not found`);
 
         // Step 2: Update user balance + record transaction
-        let amountInSats = Decimal(rawAmount).div(this.pivxClient.SATOSHI_VALUE || 100000000);
+        let amountInSats = Decimal(rawAmount).div(this.pivxClient.SATOSHI_VALUE);
 
         if (!job.attrs.userStepCompleted) {
             await User.deposit(user, amountInSats, txid);
@@ -147,6 +149,7 @@ class PaymentProcessor {
         if (!job.attrs.transactionStepCompleted) {
             await Transaction.create({ userId: user.id, deposit: amountInSats.toFixed(), txid: txid });
             await Job.findByIdAndUpdate(job.attrs._id, { "data.transactionStepCompleted": true });
+            global.PIVXEvents.emit('withdraw_success', { rawAmount });
         }
 
         return txid;
