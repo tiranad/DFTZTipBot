@@ -231,6 +231,6 @@ async function handlePrivateMessage(msg) {
 module.exports = async (client) => {
 
 
-    setInterval(await handlePoll, 5000, client);
+    setInterval(await handlePoll, 10000, client);
 
 };
