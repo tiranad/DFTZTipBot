@@ -10,6 +10,7 @@ class PaymentProcessor {
     constructor(options) {
         this.agenda         = options.agenda;
         this.pivxClient     = options.pivxClient || new PIVXClient();
+        this.snoowrap       = options.snoowrap;
     }
 
     reportException(e) {
@@ -73,7 +74,8 @@ class PaymentProcessor {
 
         if (!job) {
             console.log('New transaction! TXID: ' + txID);
-            job = this.agenda.create('deposit_order', { recipientAddress: recipientAddress, txid: txID, rawAmount: rawAmount });
+            let user = await User.findOne({ addr: recipientAddress }) || null;
+            job = this.agenda.create('deposit_order', { recipientAddress: recipientAddress, txid: txID, rawAmount: rawAmount, username: user.username });
             return new Promise((res, rej) => {
                 job.save((err) => {
                     if (err) return rej(err);
@@ -121,7 +123,9 @@ class PaymentProcessor {
         if (!job.attrs.transactionStepCompleted) {
             await Transaction.create({ userId: userId, withdraw: amount, txid: sendID });
             await Job.findByIdAndUpdate(job.attrs._id, { "data.transactionStepCompleted": true });
-            global.PIVXEvents.emit('withdraw_success', {amount, recipientAddress});
+            const user = this.snoowrap.getUser(user.username);
+
+            await user.reply(`You're deposit of ${amount} PIVX is complete. Your funds are available to use.`);
         }
 
         return sendID;
@@ -137,19 +141,22 @@ class PaymentProcessor {
         let user = await User.findOne({ addr: recipientAddress });
 
         if (!user) throw new Error(`User with address ${recipientAddress} not found`);
-
+        //debugger;
         // Step 2: Update user balance + record transaction
-        let amountInSats = Decimal(rawAmount).div(this.pivxClient.SATOSHI_VALUE);
+        //let amountInSats = Decimal(rawAmount).div(this.pivxClient.SATOSHI_VALUE);
 
         if (!job.attrs.userStepCompleted) {
-            await User.deposit(user, amountInSats, txid);
+            await User.deposit(user, rawAmount, txid);
             await Job.findByIdAndUpdate(job.attrs._id, { "data.userStepCompleted": true });
         }
 
         if (!job.attrs.transactionStepCompleted) {
-            await Transaction.create({ userId: user.id, deposit: amountInSats.toFixed(), txid: txid });
+
+            await Transaction.create({ userId: user._id, deposit: Decimal(rawAmount).toFixed(), txid: txid });
             await Job.findByIdAndUpdate(job.attrs._id, { "data.transactionStepCompleted": true });
-            global.PIVXEvents.emit('withdraw_success', { rawAmount });
+            const user = this.snoowrap.getUser(user.username);
+
+            await user.reply(`You're deposit of ${rawAmount} PIVX is complete. Your funds are available to use.`);
         }
 
         return txid;

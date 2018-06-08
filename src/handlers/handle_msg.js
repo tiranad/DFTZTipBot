@@ -1,5 +1,7 @@
 const handleTip = require('./handleTip.js');
 
+const Decimal = require('decimal.js');
+
 const handleErr = require('./error_handler.js');
 
 module.exports = async (post, client) => {
@@ -9,7 +11,7 @@ module.exports = async (post, client) => {
 
     if (args.length < 2) return;
 
-    const amount = parseInt(args[1]);
+    const amount = Decimal(args[1]).toNumber();
     if (isNaN(amount)) return;
 
     const c = await client.getComment(parent_id);

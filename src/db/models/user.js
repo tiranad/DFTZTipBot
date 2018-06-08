@@ -68,14 +68,16 @@ s.schema.statics.validateWithdrawAmount = async function (user, amount) {
     amount = parseFloat(amount);
 
     if (isNaN(amount)) return Promise.reject({ message: "amount is not a number" });
-    else if (amount <= 0.00000100) return Promise.reject({ message: "Withdrawing requires at least 100 sats" });
+    else if (amount <= 0.001) return Promise.reject({ message: "Requires at least 0.001 pivx" });
     else if (amount > user.balance) return Promise.reject({ message: "insufficient funds" });
 
     return Promise.resolve({});
 };
 
 
-
+s.schema.statics.getBigBalance = function (user) {
+    return Decimal(user.balance.toString()).mul(1e-8);
+};
 
 
 module.exports = mongoose.model(s.name, s.schema);

@@ -37,13 +37,14 @@ async function getNewAddress() {
 }
 
 async function updateUser(user) {
-    return new Promise(async (res, rej) => {
-        const addr = await getNewAddress();
+    return new Promise(async (res) => {
+        /*const addr = await getNewAddress();
         user.addr = addr;
         user.save((err) => {
             if (err) rej(err);
             res(user);
-        });
+        });*/
+        res(user);
     });
 }
 
@@ -93,7 +94,7 @@ async function balance(msg) {
 
     if (!user) user = createNewUser();
 
-    return msg.reply('Your balance is ' + user.balance + " PIVX");
+    return msg.reply('Your balance is ' + User.getBigBalance(user) + " PIVX");
 
 }
 
@@ -122,7 +123,7 @@ async function history(msg) {
     let recv_msg = "Sent tips:\n";
 
     for (let tip of tips) {
-        const tipped = await User.findOne({_id:tip.tipped});
+        const tipped = await User.findOne({ _id: tip.tipped });
         recv_msg += `\n   To: ${tipped.username} | Amount: ${tip.amount} PIVX\n`;
     }
 
@@ -140,7 +141,7 @@ async function getTransactions (msg) {
         };
 
         const withdraws_raw = await Job.find(options).limit(100).sort({ lastFinishedAt: 'desc' });
-        const deposits_raw = await Job.find({ "data.recipientAddress": user.addr}).limit(100).sort({ lastFinishedAt: 'desc' });
+        const deposits_raw = await Job.find({ "data.username": user.username }).limit(100).sort({ lastFinishedAt: 'desc' });
         const data_w = withdraws_raw.map(row => row.toJSON());
         const data_d = deposits_raw.map(row => row.toJSON());
 

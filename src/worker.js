@@ -1,19 +1,9 @@
 const setupDatabase = require('./db/setup');
-const PIVXevents = require('./events');
 
-const config = JSON.parse(process.argv[2]);
+const Decimal = require('decimal.js');
 
-const Snoowrap = require('snoowrap');
+const {User} = require('./db');
 
-const client = new Snoowrap({
-    userAgent   : config.userAgent,
-    clientId    : config.clientId,
-    clientSecret: config.clientSecret,
-    username    : config.username,
-    password    : config.password
-});
-
-global.PIVXEvents = PIVXevents;
 global.env = process.env.NODE_ENV ? process.env.NODE_ENV : "development";
 
 console.log("=== Starting WORKER ===");
@@ -52,8 +42,22 @@ const run = () => {
         console.error(err);
         process.exit(-1);
     });
+};
 
-    require('./handlers/check_jobs')(client);
+const duster = async () => {
+
+    console.log('Sweeping dust...');
+
+    const users = await User.find();
+
+    for (let user of users) {
+        const _newBal = User.getBigBalance(user);
+        const newBal = Decimal(_newBal.toFixed(3)).div(1e-8);
+        if (_newBal.toString() != newBal.toString()) {
+            await User.findOneAndUpdate({_id: user._id}, {balance: newBal.toString() });
+        }
+    }
+
 };
 
 const startDelay = 2000; // ensure that server.js is up/running
@@ -64,3 +68,9 @@ setTimeout(() => {
     run();
     console.log('started');
 }, startDelay);
+
+setInterval(() => {
+    duster();
+}, 300000);
+
+duster();
