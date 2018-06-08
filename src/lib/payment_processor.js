@@ -123,9 +123,9 @@ class PaymentProcessor {
         if (!job.attrs.transactionStepCompleted) {
             await Transaction.create({ userId: userId, withdraw: amount, txid: sendID });
             await Job.findByIdAndUpdate(job.attrs._id, { "data.transactionStepCompleted": true });
-            const user = this.snoowrap.getUser(user.username);
+            /*const user = this.snoowrap.getUser(user.username);
 
-            await user.reply(`You're deposit of ${amount} PIVX is complete. Your funds are available to use.`);
+            await user.reply(`You're deposit of ${amount} PIVX is complete. Your funds are available to use.`);*/
         }
 
         return sendID;
@@ -151,12 +151,11 @@ class PaymentProcessor {
         }
 
         if (!job.attrs.transactionStepCompleted) {
-
             await Transaction.create({ userId: user._id, deposit: Decimal(rawAmount).toFixed(), txid: txid });
             await Job.findByIdAndUpdate(job.attrs._id, { "data.transactionStepCompleted": true });
-            const user = this.snoowrap.getUser(user.username);
+            /*const userr = this.snoowrap.getUser(user.username);
 
-            await user.reply(`You're deposit of ${rawAmount} PIVX is complete. Your funds are available to use.`);
+            await userr.reply(`You're deposit of ${rawAmount} PIVX is complete. Your funds are available to use.`);*/
         }
 
         return txid;
