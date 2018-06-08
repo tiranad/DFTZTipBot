@@ -50,7 +50,7 @@ class PaymentProcessor {
 
     async checkDeposit() {
         setInterval(async () => {
-            const txs = await this.pivxClient.listTransactions();
+            const txs = await this.pivxClient.listTransactions().catch(console.error);
             let newTXs = [];
 
             for (let tx of txs) {
@@ -74,8 +74,8 @@ class PaymentProcessor {
 
         if (!job) {
             console.log('New transaction! TXID: ' + txID);
-            let user = await User.findOne({ addr: recipientAddress }) || null;
-            job = this.agenda.create('deposit_order', { recipientAddress: recipientAddress, txid: txID, rawAmount: rawAmount, username: user.username });
+            let username = await User.findOne({ addr: recipientAddress }).username || null;
+            job = this.agenda.create('deposit_order', { recipientAddress: recipientAddress, txid: txID, rawAmount: rawAmount, username });
             return new Promise((res, rej) => {
                 job.save((err) => {
                     if (err) return rej(err);

@@ -53,7 +53,7 @@ async function updateUser(user) {
 async function deposit(msg) {
     let user = await User.findOne({username: await msg.author.name});
 
-    if (!user) user = createNewUser(await msg.author.user);
+    if (!user) user = await createNewUser(await msg.author.name);
     else user = await updateUser(user);
 
     return msg.reply('Your deposit address is: ' + user.addr);
@@ -94,7 +94,7 @@ async function balance(msg) {
 
     let user = await User.findOne({username: await msg.author.name});
 
-    if (!user) user = createNewUser();
+    if (!user) user = await createNewUser(await msg.author.name);
 
     return msg.reply('Your balance is ' + User.getBigBalance(user) + " PIVX");
 
@@ -103,7 +103,7 @@ async function balance(msg) {
 async function findHistory(username) {
     let user = await User.findOne({username: username});
 
-    if (!user) user = createNewUser();
+    if (!user) user = await createNewUser(username);
 
     const tips = await Tip.find({tipper: user._id});
 
@@ -136,7 +136,7 @@ async function history(msg) {
 
 async function getTransactions (msg) {
     return new Promise(async (res) => {
-        const user = await User.findOne({username: await msg.author.name }) || await createNewUser();
+        const user = await User.findOne({username: await msg.author.name }) || await await createNewUser(await msg.author.name);
 
         const options = {
             "data.userId": user._id
