@@ -85,9 +85,9 @@ async function withdraw(msg, args) {
 
             return msg.reply('Withdrawing your coins. Check !transactions to confirm your tx.');
         });
-    }).catch((message) => {
+    }).catch(({message}) => {
         //TODO handle
-            return msg.reply(message);
+        return msg.reply(message);
     });
 }
 
