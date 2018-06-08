@@ -38,15 +38,12 @@ async function getNewAddress() {
 
 async function updateUser(user) {
     return new Promise(async (res, rej) => {
-        if (!user.addr) {
-            const addr = await getNewAddress();
-            user.addr = addr;
-            user.save((err) => {
-                if (err) rej(err);
-                res(user);
-            });
-        }
-        res(user);
+        const addr = await getNewAddress();
+        user.addr = addr;
+        user.save((err) => {
+            if (err) rej(err);
+            res(user);
+        });
     });
 }
 
