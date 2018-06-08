@@ -1,5 +1,5 @@
 const PrivateMessage = require('snoowrap').objects.PrivateMessage;
-const {User, Job, Tip} = require('../db');
+const {User, Job, Tip, Transaction} = require('../db');
 const PivxClient = require('../lib/pivx_client');
 const PIVXClient = new PivxClient();
 
@@ -143,14 +143,16 @@ async function getTransactions (msg) {
         };
 
         const withdraws_raw = await Job.find(options).limit(100).sort({ lastFinishedAt: 'desc' });
-        const deposits_raw = await Job.find({ "data.username": user.username }).limit(100).sort({ lastFinishedAt: 'desc' });
+
+        const deposits_raw = await Transaction.find({ userId: user._id }).limit(100).sort({ lastFinishedAt: 'desc' });
+
         const data_w = withdraws_raw.map(row => row.toJSON());
         const data_d = deposits_raw.map(row => row.toJSON());
 
         const deposits = { txs: [] }; const withdraws = { pending: [], txs: [] };
 
         for (let tx of data_d) {
-            deposits.txs.push(tx.data);
+            deposits.txs.push(tx);
         }
 
         for (let tx of data_w) {
@@ -176,16 +178,16 @@ async function transactions(msg) {
 
     for (let txd of deposits.txs) {
 
-        tx_msg += `\nDeposit Amount: ${txd.rawAmount} PIVX | TXID: ${txd.txid}\n`;
+        tx_msg += `\nDeposit Amount: ${txd.deposit} PIVX | TXID: ${txd.txid}\n`;
     }
 
     for (let pend of withdraws.pending) {
-        pend_msg += `\nWithdraw Amount: ${pend.amount} PIVX  | Pending\n`;
+        pend_msg += `\nWithdraw Amount: ${pend.withdraw} PIVX  | Pending\n`;
     }
 
     for (let txd of withdraws.txs) {
 
-        tx_msg += `\nWithdraw Amount: ${txd.amount} PIVX | TXID: ${txd.txid}\n`;
+        tx_msg += `\nWithdraw Amount: ${txd.withdraw} PIVX | TXID: ${txd.txid}\n`;
     }
 
     const text = pend_msg + "\n" + tx_msg;
