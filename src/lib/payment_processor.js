@@ -74,8 +74,8 @@ class PaymentProcessor {
 
         if (!job) {
             console.log('New transaction! TXID: ' + txID);
-            let username = await User.findOne({ addr: recipientAddress }).username || null;
-            job = this.agenda.create('deposit_order', { recipientAddress: recipientAddress, txid: txID, rawAmount: rawAmount, username });
+
+            job = this.agenda.create('deposit_order', { recipientAddress: recipientAddress, txid: txID, rawAmount: rawAmount});
             return new Promise((res, rej) => {
                 job.save((err) => {
                     if (err) return rej(err);

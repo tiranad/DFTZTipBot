@@ -56,7 +56,7 @@ async function deposit(msg) {
     if (!user) user = await createNewUser(await msg.author.name);
     else user = await updateUser(user);
 
-    return msg.reply('Your deposit address is: ' + user.addr);
+    return msg.reply('Your **one-time** deposit address is: ' + user.addr);
 }
 
 async function withdraw(msg, args) {
@@ -85,8 +85,9 @@ async function withdraw(msg, args) {
 
             return msg.reply('Withdrawing your coins. Check !transactions to confirm your tx.');
         });
-    }).catch(() => {
+    }).catch((message) => {
         //TODO handle
+            return msg.reply(message);
     });
 }
 
@@ -147,14 +148,10 @@ async function getTransactions (msg) {
         const data_w = withdraws_raw.map(row => row.toJSON());
         const data_d = deposits_raw.map(row => row.toJSON());
 
-        const deposits = { pending: [], txs: [] }; const withdraws = { pending: [], txs: [] };
+        const deposits = { txs: [] }; const withdraws = { pending: [], txs: [] };
 
         for (let tx of data_d) {
-            if (tx.completed == 'true') {
-                deposits.txs.push(tx.data);
-            } else {
-                deposits.pending.push(tx.data);
-            }
+            deposits.txs.push(tx.data);
         }
 
         for (let tx of data_w) {
@@ -177,10 +174,6 @@ async function transactions(msg) {
     let pend_msg = "**Pending transactions:**\n";
 
     let tx_msg = "\n**Completed transactions**:\n";
-
-    for (let pend of deposits.pending) {
-        pend_msg += `\nDeposit Amount: ${pend.rawAmount} PIVX  | Pending\n`;
-    }
 
     for (let txd of deposits.txs) {
 
