@@ -40,8 +40,8 @@ s.schema.statics.authCertainUser = async function (token, username) {
 
 s.schema.statics.tip = async function (tipper, receiver, amount) {
     return this.validateWithdrawAmount(tipper, amount).then(() => {
-        return this.findOneAndUpdate({ username: tipper.username }, { $inc : {'balance' : Decimal(0).minus(Decimal(amount)).toFixed() } }).then(() => {
-            return this.findOneAndUpdate({ username: receiver.username }, { $inc : {'balance' : Decimal(amount).toFixed() } });
+        return this.findOneAndUpdate({ username: tipper.username }, { $inc : {'balance' : Decimal(0).minus(Decimal(amount).div(1e-8)).toFixed() } }).then(() => {
+            return this.findOneAndUpdate({ username: receiver.username }, { $inc : {'balance' : Decimal(amount).div(1e-8).toFixed() } });
         });
     });
 };
@@ -54,7 +54,7 @@ s.schema.statics.deposit = async function (user, amount) {
 
 s.schema.statics.withdraw = async function (user, amount) {
     return this.validateWithdrawAmount(user, amount).then(() => {
-        return this.findOneAndUpdate({ "token": user.token }, { $inc : {'balance' : Decimal(0).minus(Decimal(amount)).toFixed() } });
+        return this.findOneAndUpdate({ "token": user.token }, { $inc : {'balance' : Decimal(0).minus(Decimal(amount).div(1e-8)).toFixed() } });
     });
 };
 
