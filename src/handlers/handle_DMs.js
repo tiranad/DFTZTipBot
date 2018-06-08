@@ -117,14 +117,16 @@ async function history(msg) {
 
     for (let tip of recv) {
         const tipper = await User.findOne({_id:tip.tipper});
-        tip_msg += `\n    From: ${tipper.username} | Amount: ${tip.amount} PIVX\n`;
+        const timestamp = new Date(tip.createdAt).toString();
+        tip_msg += `\n    From: ${tipper.username} | Amount: ${tip.amount} PIVX | ${timestamp}\n`;
     }
 
     let recv_msg = "Sent tips:\n";
 
     for (let tip of tips) {
         const tipped = await User.findOne({ _id: tip.tipped });
-        recv_msg += `\n   To: ${tipped.username} | Amount: ${tip.amount} PIVX\n`;
+        const timestamp = new Date(tip.createdAt).toString();
+        recv_msg += `\n   To: ${tipped.username} | Amount: ${tip.amount} PIVX | ${timestamp}\n`;
     }
 
     const text = tip_msg + "\n" + recv_msg;
