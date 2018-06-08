@@ -48,7 +48,7 @@ s.schema.statics.tip = async function (tipper, receiver, amount) {
 
 s.schema.statics.deposit = async function (user, amount) {
     return this.validateDepositAmount(user, amount).then(() => {
-        return this.findOneAndUpdate({ "token": user.token }, { $inc : {'balance' : Decimal(amount).toFixed() } });
+        return this.findOneAndUpdate({ _id: user._id }, { $inc : {'balance' : Decimal(amount).toFixed() } });
     });
 };
 
