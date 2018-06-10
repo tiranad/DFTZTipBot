@@ -106,11 +106,14 @@ class PaymentProcessor {
         let sendID;
 
         if (job.attrs.sendStepCompleted) {
+            console.log(job);
             sendID = job.attrs.txid;
         } else {
             const sent = await this.pivxClient.send(recipientAddress, amount);
+            console.log(sent);
             if (sent.error) throw new Error(sent.error);
-            await Job.findOneAndUpdate({ _id: job.attrs._id} , { "data.sendStepCompleted": true, "data.txid": sent.txid });
+            await Job.findOneAndUpdate({ _id: job.attrs._id} , { "data.sendStepCompleted": true, "data.txid": sent });
+            sendID = sent;
         }
 
         // Step 2: Update user balance
@@ -121,6 +124,7 @@ class PaymentProcessor {
 
         // Step 3: Record Transaction
         if (!job.attrs.transactionStepCompleted) {
+            //console.log(sendID);
             await Transaction.create({ userId: userId, withdraw: amount, txid: sendID });
             await Job.findByIdAndUpdate(job.attrs._id, { "data.transactionStepCompleted": true });
             /*const user = this.snoowrap.getUser(user.username);

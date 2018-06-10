@@ -65,10 +65,13 @@ s.schema.statics.validateDepositAmount = function (user, amount) {
 };
 
 s.schema.statics.validateWithdrawAmount = async function (user, amount) {
-    amount = parseFloat(amount);
+    
+    amount = Decimal(amount);
 
-    if (isNaN(amount)) return Promise.reject({ message: "amount is not a number" });
-    else if (amount <= 0.001) return Promise.reject({ message: "Requires at least 0.001 pivx" });
+    console.log(amount.toString());
+
+    if (amount.isNaN()) return Promise.reject({ message: "amount is not a number" });
+    else if (amount.lessThan(0.001)) return Promise.reject({ message: "Requires at least 0.001 pivx" });
     else if (amount > user.balance) return Promise.reject({ message: "insufficient funds" });
 
     return Promise.resolve({});

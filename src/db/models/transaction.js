@@ -13,7 +13,8 @@ let s = {
             default: "0.0"
         },
         txid: {
-            type: String
+            type: String,
+            unique: true
         }
     },{
         timestamps: true

@@ -2,6 +2,7 @@ const PrivateMessage = require('snoowrap').objects.PrivateMessage;
 const {User, Job, Tip, Transaction} = require('../db');
 const PivxClient = require('../lib/pivx_client');
 const PIVXClient = new PivxClient();
+const Decimal = require('decimal.js');
 
 async function filterMessages(arr) {
     const newArr = [];
@@ -58,25 +59,27 @@ async function deposit(msg) {
 
 async function withdraw(msg, args) {
 
-    const amount = parseInt(args[1]);
+    let amount = args[1];
     const addr = args[2];
 
-    if (isNaN(amount)) return msg.reply(args[1] + " is not a valid amount.");
-    else if (!addr || addr.length !== 34 ) return msg.reply(addr + " is not a valid PIVX address.");
+    //if (isNaN(amount)) return msg.reply(args[1] + " is not a valid amount.");
+    if (!addr || addr.length !== 34 ) return msg.reply(addr + " is not a valid PIVX address.");
 
     const user = await User.findOne({username: await msg.author.name});
 
     if (!user) {
         await User.create({username: await msg.author.name});
-        return 1;
+        return msg.reply("You did not have any balance to withdraw with.");
     }
 
     return User.validateWithdrawAmount(user, amount).then(async () => {
 
-        let pendingUserWithdrawJob = await Job.count({ name: "withdraw_order", "data.userId": user._id, completed: { $ne: true } });
-        if (pendingUserWithdrawJob > 0) return 1;
+        /*let pendingUserWithdrawJob = await Job.count({ name: "withdraw_order", "data.userId": user._id, completed: { $ne: true } });
+        if (pendingUserWithdrawJob > 0) return 1;*/
 
-        const job = global.agenda.create('withdraw_order', {userId: user._id, recipientAddress: addr, amount });
+        amount = Decimal(amount);
+
+        const job = global.agenda.create('withdraw_order', {userId: user._id, recipientAddress: addr, amount: amount.toNumber() });
         job.save((err) => {
             if (err) return false;
 
@@ -138,29 +141,19 @@ async function getTransactions (msg) {
     return new Promise(async (res) => {
         const user = await User.findOne({username: await msg.author.name }) || await await createNewUser(await msg.author.name);
 
-        const options = {
-            "data.userId": user._id
-        };
+        const withdraws_pend = await Job.find({ userId: user._id, completed: { "$exists": false }}).limit(100).sort({ lastFinishedAt: 'desc' });
 
-        const withdraws_raw = await Job.find(options).limit(100).sort({ lastFinishedAt: 'desc' });
-
-        const deposits_raw = await Transaction.find({ userId: user._id }).limit(100).sort({ lastFinishedAt: 'desc' });
-
-        const data_w = withdraws_raw.map(row => row.toJSON());
-        const data_d = deposits_raw.map(row => row.toJSON());
+        const tx_raw = await Transaction.find({ userId: user._id }).limit(100).sort({ lastFinishedAt: 'desc' });
 
         const deposits = { txs: [] }; const withdraws = { pending: [], txs: [] };
 
-        for (let tx of data_d) {
-            deposits.txs.push(tx);
+        for (let tx of tx_raw) {
+            if (parseFloat(tx.deposit) > 0) deposits.txs.push(tx);
+            else if (parseFloat(tx.withdraw) > 0) withdraws.txs.push(tx);
         }
 
-        for (let tx of data_w) {
-            if (tx.completed == 'true') {
-                withdraws.txs.push(tx.data);
-            } else {
-                withdraws.pending.push(tx.data);
-            }
+        for (let tx of withdraws_pend) {
+            withdraws.pending.push(tx.data);
         }
 
         res({ deposits, withdraws });
