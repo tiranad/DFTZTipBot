@@ -60,25 +60,30 @@ class PaymentProcessor {
 
     async checkDeposit() {
         setInterval(async () => {
-            const txs = await this.pivxClient.listTransactions().catch((err) => {
-                console.error(err);
-                return;
-            });
-            let newTXs = [];
+            this.pivxClient.listTransactions().then(async txs => {
 
-            for (let tx of txs) {
+                if (txs) {
 
-                const acc = tx.account;
-                if (acc == "test" && tx.txid) {
-                    const re = await Transaction.find({ txid: tx.txid }).limit(1);
-                    if (re.length == 0) newTXs.push(tx);
+                    let newTXs = [];
+
+                    for (let tx of txs) {
+
+                        const acc = tx.account;
+                        if (acc == "test" && tx.txid) {
+                            const re = await Transaction.find({ txid: tx.txid }).limit(1);
+                            if (re.length == 0) newTXs.push(tx);
+                        }
+                    }
+
+                    for (let n of newTXs) {
+
+                        await this.createDepositOrder(n.txid, n.address, n.amount);
+                    }
                 }
-            }
-
-            for (let n of newTXs) {
-
-                await this.createDepositOrder(n.txid, n.address, n.amount);
-            }
+            }).catch((err) => {
+                console.error('Daemon connection error...');
+                return err;
+            });
         }, 2000);
     }
 

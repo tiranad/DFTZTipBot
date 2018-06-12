@@ -17,15 +17,13 @@ module.exports = async (original, comment, amount) => {
 
         if (!tipper) {
             await createUser(_tipper.name);
-            await original.reply('You do not have any funds to tip with!');
-            rej(0);
+            rej(1);
         }
         else if (!receiver) {
             receiver = await createUser(_receiver.name);
         }
         else if (receiver.username == tipper.username) {
-            await original.reply('You may not tip yourself!');
-            rej(0);
+            rej(2);
         }
         else {
             await User.tip(tipper, receiver, amount).then(() => {
@@ -38,6 +36,7 @@ module.exports = async (original, comment, amount) => {
 
             }).catch((err) => {
                 if(err.message == "insufficient funds") rej(1);
+                else if (err.message == "Requires at least 0.001 pivx") rej(3);
                 else rej(0);
 
             });
