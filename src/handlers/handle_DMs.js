@@ -26,6 +26,7 @@ async function handlePoll(client) {
 async function createNewUser(username) {
     return new Promise(async (res) => {
         const addr = await getNewAddress();
+        welcomeMessage(username);
         const newUser = new User({username: username, addr});
         res(await newUser.save());
     });
@@ -68,14 +69,11 @@ async function withdraw(msg, args) {
     const user = await User.findOne({username: await msg.author.name});
 
     if (!user) {
-        await User.create({username: await msg.author.name});
+        await createNewUser(await msg.author.name);
         return msg.reply("You did not have any balance to withdraw with.");
     }
 
     return User.validateWithdrawAmount(user, amount).then(async () => {
-
-        /*let pendingUserWithdrawJob = await Job.count({ name: "withdraw_order", "data.userId": user._id, completed: { $ne: true } });
-        if (pendingUserWithdrawJob > 0) return 1;*/
 
         amount = Decimal(amount);
 
@@ -189,6 +187,13 @@ async function transactions(msg) {
 
 }
 
+async function help(msg) {
+
+    const text = `**List of Commands**\n\n!history - Your history of tips.\n\n!transactions - Your transactions (deposit/withdraw)\n\n!balance - Check your account balance.\n\n!deposit - Get a new one-time deposit address\n\n!withdraw [amount] [address] - Withdraw funds from your account`;
+
+    return msg.reply(text);
+}
+
 async function handlePrivateMessage(msg) {
 
     const args = msg.body.match(/\S+/g);
@@ -215,6 +220,9 @@ async function handlePrivateMessage(msg) {
         break;
     case '!transactions':
         await transactions(msg);
+        break;
+    case '!help':
+        await help(msg);
         break;
     default:
         //handleInvalid

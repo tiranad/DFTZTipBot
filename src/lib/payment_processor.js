@@ -1,6 +1,17 @@
 global.srcRoot = require('path').resolve('./');
 const {Transaction, User, Job} = require('../db');
 
+const config = require('../data/config.json');
+
+const Snoowrap = require('snoowrap');
+
+const client = new Snoowrap({
+    userAgent   : config.auth.USER_AGENT,
+    clientId    : config.auth.CLIENT_ID,
+    clientSecret: config.auth.CLIENT_SECRET,
+    username    : config.auth.USERNAME,
+    password    : config.auth.PASSWORD
+});
 
 const PIVXClient = require('./pivx_client.js');
 const Decimal = require("decimal.js");
@@ -10,7 +21,6 @@ class PaymentProcessor {
     constructor(options) {
         this.agenda         = options.agenda;
         this.pivxClient     = options.pivxClient || new PIVXClient();
-        this.snoowrap       = options.snoowrap;
     }
 
     reportException(e) {
@@ -50,7 +60,10 @@ class PaymentProcessor {
 
     async checkDeposit() {
         setInterval(async () => {
-            const txs = await this.pivxClient.listTransactions().catch(console.error);
+            const txs = await this.pivxClient.listTransactions().catch((err) => {
+                console.error(err);
+                return;
+            });
             let newTXs = [];
 
             for (let tx of txs) {
@@ -127,9 +140,8 @@ class PaymentProcessor {
             //console.log(sendID);
             await Transaction.create({ userId: userId, withdraw: amount, txid: sendID });
             await Job.findByIdAndUpdate(job.attrs._id, { "data.transactionStepCompleted": true });
-            /*const user = this.snoowrap.getUser(user.username);
 
-            await user.reply(`You're deposit of ${amount} PIVX is complete. Your funds are available to use.`);*/
+            await client.composeMessage({ to: user.username, subject: "Withdraw Complete", text: `Your  withdraw of ${amount} PIVX is complete. TXID: ${sendID}`});
         }
 
         return sendID;
@@ -157,9 +169,8 @@ class PaymentProcessor {
         if (!job.attrs.transactionStepCompleted) {
             await Transaction.create({ userId: user._id, deposit: Decimal(rawAmount).toFixed(), txid: txid });
             await Job.findByIdAndUpdate(job.attrs._id, { "data.transactionStepCompleted": true });
-            /*const userr = this.snoowrap.getUser(user.username);
 
-            await userr.reply(`You're deposit of ${rawAmount} PIVX is complete. Your funds are available to use.`);*/
+            await client.composeMessage({ to: user.username, subject: "Deposit Complete", text: `Your deposit of ${rawAmount} PIVX is complete and the funds are available to use.`});
         }
 
         return txid;

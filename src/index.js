@@ -22,6 +22,10 @@ const client = new Snoowrap({
     password    : config.auth.PASSWORD
 });
 
+global.welcomeMessage = async function (username) {
+    return client.composeMessage({ to: username, subject: "Welcome to PIVX Tip Bot!", text: "welcome placeholder" });
+};
+
 const snooStream = snoostream(client);
 
 const commentStream = snooStream.commentStream('pivxtiptest', {regex: /([!pivxtip])\w+/g, rate: 2000});

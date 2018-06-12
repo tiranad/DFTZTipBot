@@ -20,11 +20,11 @@ module.exports = async (post, client) => {
 
     if (c) {
         //do stuff with comment
-        handleTip(post, c, amount).then(() => {
-            return post.reply(`Successfully tipped ${authorName} ${amount} PIVX!`);
-        }).catch(() => {
+        handleTip(post, c, amount).then(async () => {
+            await post.reply(`/u/${await post.author.name} has tipped /u/${authorName} ${amount} PIVX!`);
+        }).catch(async (err) => {
             //insufficient funds
-            return post.reply(`Insufficient funds to tip ${authorName} ${amount} PIVX!`);
+            if (err == 1) await post.reply(`Insufficient funds to tip ${authorName} ${amount} PIVX!`);
         });
     }
     else {
