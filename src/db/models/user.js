@@ -14,8 +14,7 @@ let s = {
             default: "0.0"
         },
         addr: {
-            type: String,
-            unique: true
+            type: String
         }
     },{
         timestamps: true
