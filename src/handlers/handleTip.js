@@ -37,7 +37,7 @@ module.exports = async (original, comment, amount) => {
             }).catch((err) => {
                 if(err.message == "insufficient funds") rej(1);
                 else if (err.message == "Requires at least 0.001 pivx") rej(3);
-                else rej(0);
+                else rej(err.message);
 
             });
         }

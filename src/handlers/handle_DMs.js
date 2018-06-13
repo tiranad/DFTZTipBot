@@ -70,7 +70,7 @@ async function withdraw(msg, args) {
 
     if (!user) {
         await createNewUser(await msg.author.name);
-        return msg.reply("You did not have any balance to withdraw with.");
+        return msg.reply("You do not have an account, so I created one for you! You have no balance to withdraw.");
     }
 
     return User.validateWithdrawAmount(user, amount).then(async () => {
