@@ -1,4 +1,10 @@
 language: node_js
 node_js:
-  - "10"
+  - "stable"
 services: mongodb
+notifications:
+  email:
+    recipients:
+      - dajuukes@gmail.com
+    on_success: never 
+    on_failure: always
