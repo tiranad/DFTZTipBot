@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "cd src && node index",
-    "test": "cd test && mocha --no-timeouts"
+    "test": "mocha ./src/test --no-timeouts"
   },
   "repository": {
     "type": "git",
