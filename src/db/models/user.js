@@ -46,14 +46,18 @@ s.schema.statics.tip = async function (tipper, receiver, amount) {
 };
 
 s.schema.statics.deposit = async function (user, amount) {
-    return this.validateDepositAmount(user, amount).then(() => {
-        return this.findOneAndUpdate({ _id: user._id }, { $inc : {'balance' : Decimal(amount).div(1e-8).toFixed() } });
+    return new Promise((res, rej) => {
+        this.validateDepositAmount(user, amount).then(() => {
+            this.findOneAndUpdate({ _id: user._id }, { $inc : {'balance' : Decimal(amount).div(1e-8).toFixed() } }).then((r) => res(r));
+        }).catch((err) => rej(err));
     });
 };
 
 s.schema.statics.withdraw = async function (user, amount) {
-    return this.validateWithdrawAmount(user, amount).then(() => {
-        return this.findOneAndUpdate({ "token": user.token }, { $inc : {'balance' : Decimal(0).minus(Decimal(amount).div(1e-8)).toFixed() } });
+    return new Promise((res, rej) => {
+        this.validateWithdrawAmount(user, amount).then(() => {
+            this.findOneAndUpdate({ _id: user._id }, { $inc : {'balance' : Decimal(0).minus(Decimal(amount).div(1e-8)).toFixed() } }).then((r) => res(r));
+        }).catch((err) => rej(err));
     });
 };
 
@@ -69,7 +73,7 @@ s.schema.statics.validateWithdrawAmount = async function (user, amount) {
 
     if (amount.isNaN()) return Promise.reject({ message: "amount is not a number" });
     else if (amount.lessThan(0.001)) return Promise.reject({ message: "Requires at least 0.001 pivx" });
-    else if (amount.greaterThan(user.balance.toString())) return Promise.reject({ message: "insufficient funds" });
+    else if (amount.greaterThan(Decimal(user.balance.toString()).mul(1e-8))) return Promise.reject({ message: "insufficient funds" });
 
     return Promise.resolve({});
 };

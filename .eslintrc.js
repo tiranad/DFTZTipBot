@@ -20,8 +20,7 @@ module.exports = {
         "mocha": true
     },
     "globals": {
-      "io": true,
-      "payment": true,
+      "welcomeMessage": true,
       "wrap": true,
       "debugger": true
     },
