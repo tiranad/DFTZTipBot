@@ -1,8 +1,9 @@
 # PIVXTipBot
 
+This is the official repository for /u/pivxtipbot! You can find how to use it on /r/pivxtipbot.
+
 [![Build Status](https://travis-ci.com/DaJuukes/PIVXTipBot.svg?token=PMDkgbJpcZbPaGycd2H1&branch=master)](https://travis-ci.com/DaJuukes/PIVXTipBot)
 
-This is the official repository for /u/pivxtipbot! You can find how to use it on /r/pivxtipbot.
 
 # Run it yourself
 
