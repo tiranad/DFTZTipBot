@@ -2,14 +2,16 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const Bitcoin = require('bitcoin-core');
 
+const config = require('../data/config.json');
+
 class PivxClient {
 
     constructor() {
         //if (!apiKey) throw new Error("Missing APIKey");
         this.rpc = new Bitcoin({
-            port: 33333,
-            username: "test",
-            password: "test"
+            port: config.RPC_PORT,
+            username: config.RPC_USER,
+            password: config.RPC_PASS
         });
 
         this.SATOSHI_VALUE = 1e-8;
@@ -17,7 +19,7 @@ class PivxClient {
     }
 
     async accountCreate() {
-        return this.rpc.getNewAddress('test');
+        return this.rpc.getNewAddress(config.RPC_ACC);
     }
 
     async send(addr, amount) {

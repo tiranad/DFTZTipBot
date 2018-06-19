@@ -21,27 +21,18 @@
   "devDependencies": {
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
-    "chai-http": "^4.0.0",
     "cross-env": "^5.1.5",
     "eslint": "^4.19.1",
     "eslint-plugin-mocha": "^5.0.0",
-    "mocha": "^5.1.1",
-    "morgan": "^1.9.0",
-    "sinon": "^5.0.7"
+    "mocha": "^5.1.1"
   },
   "dependencies": {
     "agenda": "^1.0.3",
-    "agendash": "^0.4.0",
-    "axios": "^0.18.0",
     "bitcoin-core": "^2.0.0",
-    "bitcore-lib": "^8.0.0",
     "decimal.js": "^10.0.0",
-    "dotenv": "^5.0.1",
     "mongodb": "^3.0.8",
     "mongoose": "^5.0.18",
     "snoostream": "^1.0.1",
-    "snoowrap": "^1.15.2",
-    "uuid": "^3.2.1",
-    "zeromq": "^4.6.0"
+    "snoowrap": "^1.15.2"
   }
 }
