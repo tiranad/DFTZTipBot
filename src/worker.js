@@ -39,7 +39,7 @@ const run = () => {
 
             const user = await User.findById(job.attrs.data.userId);
 
-            await client.composeMessage({ to: user.username, subject: "Withdraw Failed", text: `Your  withdraw of ${job.attrss.data.amount} PIVX has failed. Reason: ${err.stack}`});
+            await client.composeMessage({ to: user.username, subject: "Withdraw Failed", text: `Your  withdraw of ${job.attrs.data.amount} PIVX has failed. Reason: ${job.attrs.failReason}`});
 
             console.log('Job failed with error: %s', err.message);
         });
