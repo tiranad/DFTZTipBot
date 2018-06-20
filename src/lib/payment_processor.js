@@ -65,7 +65,7 @@ class PaymentProcessor {
                     for (let tx of txs) {
                         if (tx.account == config.auth.RPC_ACC && tx.txid) {
                             const result = await Transaction.findOne({ txid: tx.txid });
-                            if (result) await this.createDepositOrder(result.txid, result.address, result.amount);
+                            if (!result) await this.createDepositOrder(result.txid, result.address, result.amount);
                         }
                     }
                 }
