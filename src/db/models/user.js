@@ -72,7 +72,7 @@ s.schema.statics.validateWithdrawAmount = async function (user, amount) {
     amount = Decimal(amount);
 
     if (amount.isNaN()) return Promise.reject({ message: "amount is not a number" });
-    else if (amount.lessThan(0.001)) return Promise.reject({ message: "Requires at least 0.001 pivx" });
+    else if (amount.lessThan(0.1)) return Promise.reject({ message: "Requires at least 0.1 pivx" });
     else if (amount.greaterThan(Decimal(user.balance.toString()).mul(1e-8))) return Promise.reject({ message: "insufficient funds" });
 
     return Promise.resolve({});

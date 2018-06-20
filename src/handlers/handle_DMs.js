@@ -63,14 +63,13 @@ async function withdraw(msg, args) {
     let amount = args[1];
     const addr = args[2];
 
-    //if (isNaN(amount)) return msg.reply(args[1] + " is not a valid amount.");
     if (!addr || addr.length !== 34 ) return msg.reply(addr + " is not a valid PIVX address.");
 
     const user = await User.findOne({username: await msg.author.name});
 
     if (!user) {
         await createNewUser(await msg.author.name);
-        return msg.reply("You do not have an account, so I created one for you! You have no balance to withdraw.");
+        return msg.reply("You did not have an account, so I created one for you! You have no balance to withdraw.");
     }
 
     return User.validateWithdrawAmount(user, amount).then(async () => {

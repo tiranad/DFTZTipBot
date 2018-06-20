@@ -4,6 +4,18 @@ const Decimal = require('decimal.js');
 
 const {User} = require('./db');
 
+const config = require('../data/config.json');
+
+const Snoowrap = require('snoowrap');
+
+const client = new Snoowrap({
+    userAgent   : config.auth.USER_AGENT,
+    clientId    : config.auth.CLIENT_ID,
+    clientSecret: config.auth.CLIENT_SECRET,
+    username    : config.auth.USERNAME,
+    password    : config.auth.PASSWORD
+});
+
 global.env = process.env.NODE_ENV ? process.env.NODE_ENV : "development";
 
 console.log("=== Starting WORKER ===");
@@ -21,9 +33,14 @@ const run = () => {
             agenda.start();
         });
 
-        agenda.on('fail', function(err, job) {
+        agenda.on('fail', async function(err, job) {
             job.attrs.stacktrace = err.stack;
             job.save();
+
+            const user = await User.findById(job.attrs.data.userId);
+
+            await client.composeMessage({ to: user.username, subject: "Withdraw Failed", text: `Your  withdraw of ${job.attrss.data.amount} PIVX has failed. Reason: ${err.stack}`});
+
             console.log('Job failed with error: %s', err.message);
         });
 
@@ -31,9 +48,7 @@ const run = () => {
             job.attrs.completed = true;
             job.save();
 
-            if (job.attrs.name === "deposit_order") {
-                console.log('deposit');
-            }
+
 
             console.log('Job completed %s', job.attrs._id);
         });
