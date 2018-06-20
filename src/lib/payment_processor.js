@@ -61,23 +61,12 @@ class PaymentProcessor {
     async checkDeposit() {
         setInterval(async () => {
             this.pivxClient.listTransactions().then(async txs => {
-
                 if (txs) {
-
-                    let newTXs = [];
-
                     for (let tx of txs) {
-
-                        const acc = tx.account;
-                        if (acc == "test" && tx.txid) {
-                            const re = await Transaction.find({ txid: tx.txid }).limit(1);
-                            if (re.length == 0) newTXs.push(tx);
+                        if (tx.account == config.auth.RPC_ACC && tx.txid) {
+                            const result = await Transaction.findOne({ txid: tx.txid });
+                            if (result) await this.createDepositOrder(result.txid, result.address, result.amount);
                         }
-                    }
-
-                    for (let n of newTXs) {
-
-                        await this.createDepositOrder(n.txid, n.address, n.amount);
                     }
                 }
             }).catch((err) => {
@@ -124,11 +113,11 @@ class PaymentProcessor {
         let sendID;
 
         if (job.attrs.sendStepCompleted) {
-            console.log(job);
+
             sendID = job.attrs.txid;
         } else {
             const sent = await this.pivxClient.send(recipientAddress, amount);
-            console.log(sent);
+
             if (sent.error) throw new Error(sent.error);
             await Job.findOneAndUpdate({ _id: job.attrs._id} , { "data.sendStepCompleted": true, "data.txid": sent });
             sendID = sent;
@@ -162,9 +151,6 @@ class PaymentProcessor {
         let user = await User.findOne({ addr: recipientAddress });
 
         if (!user) throw new Error(`User with address ${recipientAddress} not found`);
-        //debugger;
-        // Step 2: Update user balance + record transaction
-        //let amountInSats = Decimal(rawAmount).div(this.pivxClient.SATOSHI_VALUE);
 
         if (!job.attrs.userStepCompleted) {
             await User.deposit(user, rawAmount, txid);
