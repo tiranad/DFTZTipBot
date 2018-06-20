@@ -81,7 +81,7 @@ class PaymentProcessor {
                     }
                 }
             }).catch((err) => {
-                console.error('Daemon connection error...');
+                console.error('Daemon connection error: ' + err);
                 return err;
             });
         }, 2000);

@@ -7,11 +7,10 @@ const config = require('../data/config.json');
 class PivxClient {
 
     constructor() {
-        //if (!apiKey) throw new Error("Missing APIKey");
         this.rpc = new Bitcoin({
-            port: config.RPC_PORT,
-            username: config.RPC_USER,
-            password: config.RPC_PASS
+            port: config.auth.RPC_PORT,
+            username: config.auth.RPC_USER,
+            password: config.auth.RPC_PASS
         });
 
         this.SATOSHI_VALUE = 1e-8;
@@ -19,7 +18,7 @@ class PivxClient {
     }
 
     async accountCreate() {
-        return this.rpc.getNewAddress(config.RPC_ACC);
+        return this.rpc.getNewAddress(config.auth.RPC_ACC);
     }
 
     async send(addr, amount) {
