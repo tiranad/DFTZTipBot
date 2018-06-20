@@ -4,7 +4,7 @@ const Decimal = require('decimal.js');
 
 const {User} = require('./db');
 
-const config = require('../data/config.json');
+const config = require('./data/config.json');
 
 const Snoowrap = require('snoowrap');
 
