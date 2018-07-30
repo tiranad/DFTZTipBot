@@ -50,7 +50,7 @@ class PaymentProcessor {
 
     async getAddress(options) {
         try {
-            await this.generateAddress(options.user);
+            await this.generateAddress(options.user).catch(this.reportException);
             return { success: true };
         } catch (e) {
             this.reportException(e);

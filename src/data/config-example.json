@@ -9,5 +9,8 @@
     "RPC_PASS": "",
     "RPC_PORT": 33333,
     "RPC_ACC": ""
+  },
+  "settings": {
+    "subreddit": ""
   }
 }

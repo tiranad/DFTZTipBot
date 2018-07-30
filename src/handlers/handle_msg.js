@@ -2,14 +2,15 @@ const handleTip = require('./handleTip.js');
 
 const handleErr = require('./error_handler.js');
 
-
+const {settings} = require('../data/config.json');
 
 module.exports = async (post, client) => {
 
-    if (!post.body.startsWith('!tip ')) return;
-
-    const {parent_id, body} = post;
+    const {parent_id, body, subreddit} = post;
     const args = body.match(/\S+/g);
+
+    if (!settings.subreddits.includes(subreddit.display_name.toLowerCase())) return;
+
 
     if (args.length < 2) return;
 
