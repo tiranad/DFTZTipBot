@@ -33,7 +33,7 @@ global.welcomeMessage = async function (username) {
 
 const snooStream = snoostream(client);
 
-const commentStream = snooStream.commentStream('pivxtiptest', {regex: /([!tip])\w+/g, rate: 2000});
+const commentStream = snooStream.commentStream('all', {regex: /([!pivxtip])\w+/g, rate: 2000});
 
 commentStream.on('post', (post) => {
     msgHandler(post, client);

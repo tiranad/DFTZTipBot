@@ -11,7 +11,7 @@ module.exports = async (post, client) => {
 
     if (!settings.subreddits.includes(subreddit.display_name.toLowerCase())) return;
 
-    if (args[0] !== '!tip') return;
+    if (args[0] !== '!pivxtip') return;
 
     if (args.length < 2) return;
 
