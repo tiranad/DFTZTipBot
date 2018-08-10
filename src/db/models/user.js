@@ -78,6 +78,17 @@ s.schema.statics.validateWithdrawAmount = async function (user, amount) {
     return Promise.resolve({});
 };
 
+s.schema.statics.validateTipAmount = async function (user, amount) {
+
+    amount = Decimal(amount);
+
+    if (amount.isNaN()) return Promise.reject({ message: "That amount is not a number." });
+    else if (amount.lessThan(0.0001)) return Promise.reject({ message: "The minimum amount allowed to tip is 0.0001 PIVX." });
+    else if (amount.greaterThan(Decimal(user.balance.toString()).mul(1e-8))) return Promise.reject({ message: "You do not have sufficient funds!" });
+
+    return Promise.resolve({});
+};
+
 
 s.schema.statics.getBigBalance = function (user) {
     return Decimal(user.balance.toString()).mul(1e-8);

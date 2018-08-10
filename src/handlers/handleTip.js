@@ -35,8 +35,8 @@ module.exports = async (original, comment, amount) => {
                 });
 
             }).catch((err) => {
-                if(err.message == "insufficient funds") rej(1);
-                else if (err.message == "Requires at least 0.001 pivx") rej(3);
+                if(err.message == "You do not have sufficient funds!") rej(1);
+                else if (err.message == "The minimum amount allowed to tip is 0.0001 PIVX.") rej(3);
                 else rej(err.message);
 
             });
