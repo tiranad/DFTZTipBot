@@ -107,7 +107,7 @@ describe('Deposit', function() {
         await models.User.deposit(user, amount);
 
         user = await models.User.findOne({ username: user.username });
-        assert.equal(user.balance.toString(), newBalance.toString());
+        assert.equal(user.balance.toString(), newBalance.toString() + '.000');
     });
 });
 
@@ -125,7 +125,7 @@ describe('Deposit/Withdraw Race Conditions', function() {
 
         return processParallelTransactions(user, transactions).then(async () => {
             user = await models.User.findOne({ username: user.username });
-            assert.equal(user.balance.toString(), newBalance.toString());
+            assert.equal(user.balance.toString(), newBalance.toString() + '.000');
         });
     });
 });
