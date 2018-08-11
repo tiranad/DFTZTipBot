@@ -22,7 +22,8 @@ module.exports = {
     "globals": {
       "welcomeMessage": true,
       "wrap": true,
-      "debugger": true
+      "debugger": true,
+      "toFixed": true
     },
     "rules": {
         "no-console":0,
