@@ -14,7 +14,6 @@ const client = new Snoowrap({
 });
 
 const PIVXClient = require('./pivx_client.js');
-const Decimal = require("decimal.js");
 
 class PaymentProcessor {
 
@@ -135,7 +134,7 @@ class PaymentProcessor {
             await Transaction.create({ userId: userId, withdraw: amount, txid: sendID });
             await Job.findByIdAndUpdate(job.attrs._id, { "data.transactionStepCompleted": true });
 
-            await client.composeMessage({ to: user.username, subject: "Withdraw Complete", text: `Your  withdraw of ${toFixed(Decimal(amount).toString(),3)} PIVX is complete. TXID: ${sendID}`});
+            await client.composeMessage({ to: user.username, subject: "Withdraw Complete", text: `Your  withdraw of ${toFixed(amount,3)} PIVX is complete. TXID: ${sendID}`});
         }
 
         return sendID;

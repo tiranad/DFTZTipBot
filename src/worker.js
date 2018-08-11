@@ -1,7 +1,5 @@
 const setupDatabase = require('./db/setup');
 
-const Decimal = require('decimal.js');
-
 const {User} = require('./db');
 
 const config = require('./data/config.json');
