@@ -6,28 +6,23 @@ global.env = (process.argv[2] === '--production') ? process.env.NODE_ENV : "deve
 
 const Snoowrap = require('snoowrap');
 const snoostream = require('snoostream');
-let config;
 
-try {
-    config = require('./src/data/config.json');
-} catch (e) {
-    console.log('No configuration file found.');
-    console.log(e);
-    process.exit(0);
-}
+const dotenv = require('dotenv')
+
+dotenv.config({ path: './src/data/config.env' });
 
 const msgHandler = require('./src/handlers/handle_msg.js');
 
 const setupDatabase = require('./src/db/setup');
 
 const runPoll = require('./src/handlers/handle_DMs.js');
-
+console.log(process.env.PASSWORD)
 const client = new Snoowrap({
-    userAgent   : config.auth.USER_AGENT,
-    clientId    : config.auth.CLIENT_ID,
-    clientSecret: config.auth.CLIENT_SECRET,
-    username    : config.auth.USERNAME,
-    password    : config.auth.PASSWORD
+    userAgent   : process.env.USER_AGENT,
+    clientId    : process.env.CLIENT_ID,
+    clientSecret: process.env.CLIENT_SECRET,
+    username    : process.env.USERNAME,
+    password    : process.env.PASSWORD
 });
 
 const text = `Hello there! I'm /u/pivxtipbot, the official PIVX Reddit Tip Bot! Since you have been interacted with me for the first time, I'm here to help you get to know the ropes.` +
@@ -40,7 +35,7 @@ global.welcomeMessage = async function (username) {
 };
 
 global.toFixed = function (num, fixed) {
-    var re = new RegExp('^-?\\d+(?:\.\\d{0,' + (fixed || -1) + '})?');
+    var re = new RegExp('^-?\\d+(?:.\\d{0,' + (fixed || -1) + '})?');
     return num.toString().match(re)[0];
 };
 

@@ -4,12 +4,12 @@ const handleErr = require('./error_handler.js');
 
 const Decimal = require('decimal.js');
 
-const {settings} = require('../data/config.json');
+const subreddits = process.env.SUBREDDITS.split(',');
 
 module.exports = async (post, client) => {
 
     const {parent_id, body, subreddit} = post;
-    if (settings.subreddits.indexOf(subreddit.display_name.toLowerCase()) === -1) return;
+    if (subreddits.indexOf(subreddit.display_name.toLowerCase()) === -1) return;
     const args = body.match(/\S+/g);
 
     if (args[0] !== '!pivxtip') return;
