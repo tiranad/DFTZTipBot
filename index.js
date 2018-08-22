@@ -10,8 +10,6 @@ const dotenv = require('dotenv');
 
 dotenv.config({ path: './src/data/config.env' });
 
-const msgHandler = require('./src/handlers/handle_msg.js');
-
 const setupDatabase = require('./src/db/setup');
 
 const runPoll = require('./src/handlers/handle_DMs.js');
@@ -41,17 +39,8 @@ setupDatabase().then((result) => {
 
     global.agenda = result.agenda;
 
-    setInterval(() => {
-        return client.getNewComments().then(comments => {
-            for (let comment of comments) {
-                console.log(comment.body);
-            }
-        });
-    });
-
     console.log(`PIVX Tip Bot starting up...`);
+    runPoll(client);
 
     if (process.argv[2] !== '--no-daemon') fork('./src/worker');
 });
-
-runPoll(client);

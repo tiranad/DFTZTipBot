@@ -1,26 +1,22 @@
 const PrivateMessage = require('snoowrap').objects.PrivateMessage;
+const Comment = require('snoowrap').objects.Comment;
 const {User, Job, Tip, Transaction} = require('../db');
 const PivxClient = require('../lib/pivx_client');
 const PIVXClient = new PivxClient();
 const Decimal = require('decimal.js');
+const handleMessage = require('./handle_msg.js');
 
 async function filterMessages(arr) {
-    const newArr = [];
     for (let msg of arr) {
-        if (msg instanceof PrivateMessage) newArr.push(msg);
+        if (msg instanceof PrivateMessage) return handlePrivateMessage(msg);
+        else if (msg instanceof Comment) return handleMessage(msg);
     }
-    return newArr;
 }
 
 async function handlePoll(client) {
     const _msgs = await client.getUnreadMessages();
 
-    const msgs = await filterMessages(_msgs, client);
-
-
-    for (let msg of msgs) {
-        await handlePrivateMessage(msg);
-    }
+    await filterMessages(_msgs, client);
 }
 
 async function createNewUser(username) {
