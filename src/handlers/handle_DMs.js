@@ -6,10 +6,10 @@ const PIVXClient = new PivxClient();
 const Decimal = require('decimal.js');
 const handleMessage = require('./handle_msg.js');
 
-async function filterMessages(arr) {
+async function filterMessages(arr, client) {
     for (let msg of arr) {
         if (msg instanceof PrivateMessage) return handlePrivateMessage(msg);
-        else if (msg instanceof Comment) return handleMessage(msg);
+        else if (msg instanceof Comment) return handleMessage(msg, client);
     }
 }
 
