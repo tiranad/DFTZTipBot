@@ -44,7 +44,7 @@ setupDatabase().then((result) => {
     setInterval(() => {
         return client.getNewComments().then(comments => {
             for (let comment of comments) {
-                console.log(comment.subreddit);
+                console.log(comment.body);
             }
         });
     });
