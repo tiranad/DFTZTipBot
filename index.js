@@ -5,9 +5,8 @@ global.srcRoot = path.resolve(__dirname);
 global.env = (process.argv[2] === '--production') ? process.env.NODE_ENV : "development";
 
 const Snoowrap = require('snoowrap');
-const snoostream = require('snoostream');
 
-const dotenv = require('dotenv')
+const dotenv = require('dotenv');
 
 dotenv.config({ path: './src/data/config.env' });
 
@@ -16,7 +15,6 @@ const msgHandler = require('./src/handlers/handle_msg.js');
 const setupDatabase = require('./src/db/setup');
 
 const runPoll = require('./src/handlers/handle_DMs.js');
-console.log(process.env.PASSWORD)
 const client = new Snoowrap({
     userAgent   : process.env.USER_AGENT,
     clientId    : process.env.CLIENT_ID,
@@ -39,17 +37,17 @@ global.toFixed = function (num, fixed) {
     return num.toString().match(re)[0];
 };
 
-const snooStream = snoostream(client);
-
-const commentStream = snooStream.commentStream('all', {rate: 2000});
-
-commentStream.on('post', (post) => {
-    msgHandler(post, client);
-});
-
 setupDatabase().then((result) => {
 
     global.agenda = result.agenda;
+
+    setInterval(() => {
+        return client.getNewComments().then(comments => {
+            for (let comment of comments) {
+                console.log(comment.subreddit);
+            }
+        });
+    });
 
     console.log(`PIVX Tip Bot starting up...`);
 
