@@ -6,17 +6,22 @@ const PIVXClient = new PivxClient();
 const Decimal = require('decimal.js');
 const handleMessage = require('./handle_msg.js');
 
-async function filterMessages(arr, client) {
-    for (let msg of arr) {
+async function filterMessages(msgs, comments, client) {
+    for (let msg of msgs) {
         if (msg instanceof PrivateMessage) return handlePrivateMessage(msg);
-        else if (msg instanceof Comment) return handleMessage(msg, client);
+    }
+    for (let comment of comments) {
+        for (let comment of comments) {
+            if (comment instanceof Comment) return handleMessage(comment, client);
+        }
     }
 }
 
 async function handlePoll(client) {
-    const _msgs = await client.getUnreadMessages();
+    const msgs = await client.getUnreadMessages();
+    const comments = await client.getNewComments();
 
-    await filterMessages(_msgs, client);
+    await filterMessages(msgs, comments, client);
 }
 
 async function createNewUser(username) {
@@ -229,7 +234,6 @@ async function handlePrivateMessage(msg) {
 }
 
 module.exports = async (client) => {
-
 
     setInterval(await handlePoll, 10000, client);
 
