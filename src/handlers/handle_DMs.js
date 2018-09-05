@@ -224,7 +224,7 @@ async function handlePrivateMessage(msg, client) {
         break;
     case '!pivxtip':
         await handleMessage(msg, client);
-        break
+        break;
     default:
         //handleInvalid
         await msg.reply(args[0] + " is an invalid command.");
