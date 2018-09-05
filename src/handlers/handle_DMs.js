@@ -1,5 +1,5 @@
 const PrivateMessage = require('snoowrap').objects.PrivateMessage;
-const Comment = require('snoowrap').objects.Comment;
+//const Comment = require('snoowrap').objects.Comment;
 const {User, Job, Tip, Transaction} = require('../db');
 const PivxClient = require('../lib/pivx_client');
 const PIVXClient = new PivxClient();
@@ -8,9 +8,9 @@ const handleMessage = require('./handle_msg.js');
 
 async function filterMessages(msgs, comments, client) {
     for (let msg of msgs) {
-        if (msg instanceof PrivateMessage) return handlePrivateMessage(msg);
+        if (msg instanceof PrivateMessage) return handlePrivateMessage(msg, client);
     }
-  /*  for (let comment of comments) {
+    /*  for (let comment of comments) {
         if (comment instanceof Comment) return handleMessage(comment, client);
     }*/
 }
@@ -19,7 +19,7 @@ async function handlePoll(client) {
     const msgs = await client.getUnreadMessages();
     //const comments = await client.getNewComments();
 
-    await filterMessages(msgs, comments, client);
+    await filterMessages(msgs, null, client);
 }
 
 async function createNewUser(username) {
@@ -192,7 +192,7 @@ async function help(msg) {
     return msg.reply(text);
 }
 
-async function handlePrivateMessage(msg) {
+async function handlePrivateMessage(msg, client) {
 
     const args = msg.body.match(/\S+/g);
 
@@ -222,6 +222,9 @@ async function handlePrivateMessage(msg) {
     case '!help':
         await help(msg);
         break;
+    case '!pivxtip':
+        await handleMessage(msg, client);
+        break
     default:
         //handleInvalid
         await msg.reply(args[0] + " is an invalid command.");

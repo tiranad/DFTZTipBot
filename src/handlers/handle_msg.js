@@ -14,10 +14,10 @@ module.exports = async (post, client) => {
 
     if (args.length < 3) return;
 
-    const _user = args[1]
-    if (!_user.startsWith('/u/')) return post.reply('The username needs to be prefaced with /u/! Example: !pivxtip /u/DaJuukes 1')
+    const _user = args[1];
+    if (!_user.startsWith('/u/')) return post.reply('The username needs to be prefaced with /u/! Example: !pivxtip /u/DaJuukes 1');
 
-    const user = await post.getUser().fetch()
+    const user = await post.getUser().fetch();
 
     const amount = args[2];
     if (isNaN(parseFloat(amount))) return;
