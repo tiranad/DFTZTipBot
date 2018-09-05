@@ -7,18 +7,17 @@ const Decimal = require('decimal.js');
 const handleMessage = require('./handle_msg.js');
 
 async function filterMessages(msgs, comments, client) {
-    console.log(comments)
     for (let msg of msgs) {
         if (msg instanceof PrivateMessage) return handlePrivateMessage(msg);
     }
-    for (let comment of comments) {
+  /*  for (let comment of comments) {
         if (comment instanceof Comment) return handleMessage(comment, client);
-    }
+    }*/
 }
 
 async function handlePoll(client) {
     const msgs = await client.getUnreadMessages();
-    const comments = await client.getNewComments();
+    //const comments = await client.getNewComments();
 
     await filterMessages(msgs, comments, client);
 }
