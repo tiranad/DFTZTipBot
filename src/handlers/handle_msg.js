@@ -17,7 +17,7 @@ module.exports = async (post, client) => {
     const _user = args[1];
     if (!_user.startsWith('/u/')) return post.reply('The username needs to be prefaced with /u/! Example: !pivxtip /u/DaJuukes 1');
 
-    const user = await client.getUser(_user.slice(3)).fetch();
+    const user = await client.getUser(_user.slice(3));
 
     const amount = args[2];
     if (isNaN(parseFloat(amount))) return;
@@ -29,7 +29,7 @@ module.exports = async (post, client) => {
     if (c) {
         //do stuff with comment
         console.log('Handling tip..');
-        handleTip(post, { author: user }, amount).then(async () => {
+        handleTip(post, { author: await user }, amount).then(async () => {
             await post.reply(`/u/${await post.author.name} has sucessfully tipped /u/${authorName} ${toFixed(Decimal(amount).toString(), 3)} PIVX!`);
         }).catch(async (err) => {
             //insufficient funds
