@@ -10,7 +10,7 @@ module.exports = async (post, client) => {
     //if (subreddits.indexOf(subreddit.display_name.toLowerCase()) === -1) return;
     const args = body.match(/\S+/g);
 
-    if (args[0] !== '!pivxtip') return;
+    if (args[0] !== '/u/pivxtipbot') return;
 
     if (args.length < 3) return;
 

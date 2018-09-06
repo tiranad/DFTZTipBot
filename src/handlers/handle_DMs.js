@@ -222,7 +222,7 @@ async function handlePrivateMessage(msg, client) {
     case '!help':
         await help(msg);
         break;
-    case '!pivxtip':
+    case '/u/pivxtipbot':
         await handleMessage(msg, client);
         break;
     default:
