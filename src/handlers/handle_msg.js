@@ -14,7 +14,7 @@ module.exports = async (post, client) => {
 
     if (args.length < 2) return;
 
-    const user = await client.findComment(parent_id)
+    const user = await client.getComment(parent_id)
 
     const amount = args[1];
     if (isNaN(parseFloat(amount))) return;
