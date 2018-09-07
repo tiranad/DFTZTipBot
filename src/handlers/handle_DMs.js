@@ -7,7 +7,6 @@ const Decimal = require('decimal.js');
 const handleMessage = require('./handle_msg.js');
 
 async function filterMessages(msgs,  client) {
-    if (!msgs) return console.log('No new messages...');
     let arr = [];
     for (let msg of msgs) {
         console.log('Reading message ' + msg.id);
@@ -19,10 +18,7 @@ async function filterMessages(msgs,  client) {
         console.log('Clearing ' + arr.length + ' messages.');
         return client.markMessagesAsRead(arr);
     }
-    else {
-        console.log('No messages to clear.');
-        return Promise.resolve();
-    }
+    else return Promise.resolve();
 }
 
 async function handlePoll(client) {
