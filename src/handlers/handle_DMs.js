@@ -12,8 +12,8 @@ async function filterMessages(msgs,  client) {
     for (let msg of msgs) {
         console.log('Reading message ' + msg.id);
         arr.push(msg);
-        if (msg instanceof PrivateMessage) return handlePrivateMessage(msg, client);
-        else if (msg instanceof Comment) return handleMessage(msg, client);
+        if (msg instanceof PrivateMessage) await handlePrivateMessage(msg, client);
+        else if (msg instanceof Comment) await handleMessage(msg, client);
     }
     if (arr.length > 0) {
         console.log('Clearing ' + arr.length + ' messages.');
