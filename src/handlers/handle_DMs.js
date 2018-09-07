@@ -8,21 +8,21 @@ const handleMessage = require('./handle_msg.js');
 
 async function filterMessages(msgs,  client) {
     if (!msgs) return console.log('No new messages...');
-    let arr = []
+    let arr = [];
     for (let msg of msgs) {
-        console.log('Reading message ' + msg.id)
-        arr.push(msg.id)
+        console.log('Reading message ' + msg.id);
+        arr.push(msg.id);
         if (msg instanceof PrivateMessage) return handlePrivateMessage(msg, client);
         else if (msg instanceof Comment) return handleMessage(msg, client);
     }
-    client.markMessagesAsRead(arr)
+    return client.markMessagesAsRead(arr);
 }
 
 async function handlePoll(client) {
     const msgs = await client.getUnreadMessages({ filter: 'mentions' });
 
 
-    await filterMessages(msgs, client);
+    return filterMessages(msgs, client);
 }
 
 async function createNewUser(username) {
