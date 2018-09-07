@@ -16,7 +16,7 @@ async function filterMessages(msgs,  client) {
         //else if (msg instanceof Comment) return handleMessage(msg, client);
     }
     console.log(arr);
-    if (arr) return client.markMessagesAsRead(arr);
+    if (arr.length > 0) return client.markMessagesAsRead(arr);
     else return Promise.resolve();
 }
 
