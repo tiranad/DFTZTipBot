@@ -6,19 +6,20 @@ const PIVXClient = new PivxClient();
 const Decimal = require('decimal.js');
 const handleMessage = require('./handle_msg.js');
 
-async function filterMessages(msgs, comments, client) {
+async function filterMessages(msgs,  client) {
+    if (!msgs) return console.log('No new messages...')
     for (let msg of msgs) {
         if (msg instanceof PrivateMessage) return handlePrivateMessage(msg, client);
+        else if (msg instanceof Comment) return handleMessage(msg, client);
     }
-    for (let comment of comments) {
-        if (comment instanceof Comment) return handleMessage(comment, client);
-    }
+
 }
 
 async function handlePoll(client) {
     const msgs = await client.getUnreadMessages({ filter: 'mentions' });
 
-    await filterMessages(msgs, null, client);
+
+    await filterMessages(msgs, client);
 }
 
 async function createNewUser(username) {
