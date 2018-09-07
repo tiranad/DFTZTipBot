@@ -6,22 +6,17 @@ const Decimal = require('decimal.js');
 
 module.exports = async (post, client) => {
 
-    const {body} = post;
-    //if (subreddits.indexOf(subreddit.display_name.toLowerCase()) === -1) return;
+    const {body, parent_id} = await post;
+
     const args = body.match(/\S+/g);
 
     if (args[0] !== '/u/pivxtipbot') return;
 
-    if (args.length < 3) return;
+    if (args.length < 2) return;
 
-    const _user = args[1];
+    const user = await client.findComment(parent_id)
 
-    if (_user.slice(3) === await post.author.name) return post.reply('You may not tip yourself!');
-    if (!_user.startsWith('/u/')) return post.reply('The username needs to be prefaced with /u/! Example: !pivxtip /u/DaJuukes 1');
-
-    const user = client.getUser(_user.slice(3));
-
-    const amount = args[2];
+    const amount = args[1];
     if (isNaN(parseFloat(amount))) return;
 
     //const c = await client.getComment(parent_id);
@@ -31,7 +26,7 @@ module.exports = async (post, client) => {
     if (user) {
         //do stuff with comment
         console.log('Handling tip..');
-        handleTip(post, { author: await user }, amount).then(async () => {
+        handleTip(post, user, amount).then(async () => {
             await post.reply(`/u/${await post.author.name} has sucessfully tipped /u/${await user.name} ${toFixed(Decimal(amount).toString(), 3)} PIVX!`);
         }).catch(async (err) => {
             //insufficient funds
