@@ -15,8 +15,9 @@ async function filterMessages(msgs,  client) {
         //if (msg instanceof PrivateMessage) return handlePrivateMessage(msg, client);
         //else if (msg instanceof Comment) return handleMessage(msg, client);
     }
-    console.log(arr)
-    return client.markMessagesAsRead(arr);
+    console.log(arr);
+    if (arr) return client.markMessagesAsRead(arr);
+    else return Promise.resolve();
 }
 
 async function handlePoll(client) {
