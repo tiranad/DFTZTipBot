@@ -12,10 +12,9 @@ async function filterMessages(msgs,  client) {
     for (let msg of msgs) {
         console.log('Reading message ' + msg.id);
         arr.push(msg);
-        //if (msg instanceof PrivateMessage) return handlePrivateMessage(msg, client);
-        //else if (msg instanceof Comment) return handleMessage(msg, client);
+        if (msg instanceof PrivateMessage) return handlePrivateMessage(msg, client);
+        else if (msg instanceof Comment) return handleMessage(msg, client);
     }
-    console.log(arr);
     if (arr.length > 0) return client.markMessagesAsRead(arr);
     else return Promise.resolve();
 }
