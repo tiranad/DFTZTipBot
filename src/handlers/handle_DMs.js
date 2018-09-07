@@ -1,4 +1,4 @@
-const PrivateMessage = require('snoowrap').objects.Mention;
+const PrivateMessage = require('snoowrap').objects.PrivateMessage;
 const Comment = require('snoowrap').objects.Comment;
 const {User, Job, Tip, Transaction} = require('../db');
 const PivxClient = require('../lib/pivx_client');
