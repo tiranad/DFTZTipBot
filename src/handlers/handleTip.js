@@ -19,10 +19,11 @@ module.exports = async (original, comment, amount) => {
             await createUser(_tipper.name);
             rej('You didn\'t have an account, so I created one for you!');
         }
+        else if (!receiver) {
+            receiver = await createUser(_receiver.name);
+        }
         else if (receiver.username == tipper.username) {
             rej('You may not tip yourself!');
-        } else if (!receiver) {
-            receiver = await createUser(_receiver.name);
         }
 
 
