@@ -58,18 +58,22 @@ setupDatabase().then((result) => {
 
 async function depositMessage (data) {
 
-    const user = await User.findById(data.userId);
+    const user = await User.findById(data._id);
 
-    if (!user) return;
+    if (!user) {
+        return console.log('ERR: User not found');
+    }
 
     return client.composeMessage({ to: user.username, subject: "Deposit Success", text: `Your deposit of **${data.amount}** PIVX has been credited.`});
 }
 
 async function withdrawMessage (data) {
 
-    const user = await User.findById(data.userId);
+    const user = await User.findById(data._id);
 
-    if (!user) return;
+    if (!user) {
+        return console.log('ERR: User not found');
+    }
 
     if (!data.error && data.txid) return client.composeMessage({ to: user.username, subject: "Withdraw Success", text: `Your withdraw of **${data.amount}** PIVX has been sent. Your TXID is: ${data.txid}`});
     else return client.composeMessage({ to: user.username, subject: "Withdraw Failed", text: `Your withdraw of **${data.amount}** PIVX has encountered an error. The error was: ${data.error}`});
