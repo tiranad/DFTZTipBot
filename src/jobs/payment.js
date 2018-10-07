@@ -1,10 +1,9 @@
 const PaymentProcessor = require('../lib/payment_processor.js');
 
-module.exports = function(agenda, snoowrap) {
+module.exports = function(agenda) {
 
     let paymentProcessor = new PaymentProcessor({
-        agenda: agenda,
-        snoowrap: snoowrap
+        agenda: agenda
     });
 
     agenda.define('withdraw_order', async function(job, done) {
