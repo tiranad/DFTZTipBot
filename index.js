@@ -16,18 +16,16 @@ const setupDatabase = require('./src/db/setup');
 
 const runPoll = require('./src/handlers/handle_DMs.js');
 
-if (!process.env.USER_AGENT || !process.env.CLIENT_ID || !process.env.CLIENT_SECRET || !process.env.USERNAME || !process.env.PASSWORD) {
+if (!process.env.USER_AGENT || !process.env.CLIENT_ID || !process.env.CLIENT_SECRET || !process.env.BOT_USERNAME || !process.env.BOT_PASSWORD) {
     console.log('Credentials not found.');
-
     process.exit(0);
 }
-console.log(process.env.USER_AGENT, process.env.CLIENT_ID, process.env.CLIENT_SECRET.length, process.env.USERNAME, process.env.PASSWORD.length);
 const client = new Snoowrap({
     userAgent   : process.env.USER_AGENT,
     clientId    : process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
-    username    : process.env.USERNAME,
-    password    : process.env.PASSWORD
+    username    : process.env.BOT_USERNAME,
+    password    : process.env.BOT_PASSWORD
 });
 
 global.welcomeText = `Hello there! I'm /u/pivxtipbot, the official PIVX Reddit Tip Bot! Since you have been interacted with me for the first time, I'm here to help you get to know the ropes.` +
