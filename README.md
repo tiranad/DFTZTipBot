@@ -1,15 +1,14 @@
-# PIVXTipBot
+# DFTZTipBot
 
 This is the official repository for /u/pivxtipbot! You can find how to use it on /r/pivxtipbot.
 
-[![Build Status](https://travis-ci.com/DaJuukes/PIVXTipBot.svg?token=PMDkgbJpcZbPaGycd2H1&branch=master)](https://travis-ci.com/DaJuukes/PIVXTipBot)
 
 
 # Run it yourself
 
 Git clone this repository, then run `npm install`. Make sure you have:
 
-- A PIVX daemon (latest version) running on port 33333
+- A DFTZ daemon (latest version) running on port 20306
 - A MongoDB service running on default port
 
-Then, run `npm start`.
+Then, run `npm start`
